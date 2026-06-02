@@ -10,10 +10,9 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu'
-import { DEVICES, STATS } from '../data/devices'
+import { CONFIGURATIONS, CONFIG_STATS } from '../data/configurations'
 
-const FILTERS = ['All 142', 'Needs attention 3', 'Online 128', 'Offline 11']
-
+const FILTERS = ['All 14', 'Active 6', 'Deploying 2', 'Drafts 3']
 const ROWS_PER_PAGE = 10
 const TOTAL_PAGES = 7
 
@@ -48,13 +47,13 @@ function StatusBadge({ status }) {
   return null
 }
 
-export default function DevicesPage({ onRegister, newDeviceId }) {
-  const [activeFilter, setActiveFilter] = useState('All 142')
+export default function ConfigurationsPage() {
+  const [activeFilter, setActiveFilter] = useState('All 14')
   const [selected, setSelected] = useState(new Set())
   const [page, setPage] = useState(1)
 
   const toggleAll = (checked) => {
-    setSelected(checked ? new Set(DEVICES.map(d => d.id)) : new Set())
+    setSelected(checked ? new Set(CONFIGURATIONS.map(c => c.id)) : new Set())
   }
   const toggleOne = (id) => {
     setSelected(prev => {
@@ -73,17 +72,17 @@ export default function DevicesPage({ onRegister, newDeviceId }) {
         {/* Page header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-[24px] font-semibold text-foreground leading-tight">Devices</h1>
-            <p className="text-[14px] text-muted-foreground mt-0.5">All terminals registerd to your organisation</p>
+            <h1 className="text-[24px] font-semibold text-foreground leading-tight">Configurations</h1>
+            <p className="text-[14px] text-muted-foreground mt-0.5">Manage OS versions, packages and apps pushed to your fleets/</p>
           </div>
-          <Button onClick={onRegister} className="bg-foreground text-background hover:bg-foreground/90 rounded-lg px-4 h-9 text-[14px] font-medium">
-            Register Device
+          <Button className="bg-foreground text-background hover:bg-foreground/90 rounded-lg px-4 h-9 text-[14px] font-medium">
+            New Configuration
           </Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          {STATS.map((stat) => (
+          {CONFIG_STATS.map((stat) => (
             <Card key={stat.label} className="p-5 rounded-xl border border-border shadow-none">
               <p className="text-[28px] font-semibold text-foreground leading-none mb-1.5">{stat.value}</p>
               <p className="text-[13px] text-muted-foreground">{stat.label}</p>
@@ -121,41 +120,30 @@ export default function DevicesPage({ onRegister, newDeviceId }) {
               <TableRow className="bg-muted/40 hover:bg-muted/40">
                 <TableHead className="w-10 pl-4">
                   <Checkbox
-                    checked={selected.size === DEVICES.length}
+                    checked={selected.size === CONFIGURATIONS.length}
                     onCheckedChange={toggleAll}
                   />
                 </TableHead>
-                <TableHead className="text-[13px] font-medium text-muted-foreground">Device</TableHead>
+                <TableHead className="text-[13px] font-medium text-muted-foreground">Name</TableHead>
                 <TableHead className="text-[13px] font-medium text-muted-foreground">Fleet</TableHead>
                 <TableHead className="text-[13px] font-medium text-muted-foreground">Status</TableHead>
-                <TableHead className="text-[13px] font-medium text-muted-foreground">Configuration</TableHead>
+                <TableHead className="text-[13px] font-medium text-muted-foreground">OS</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {DEVICES.map((device) => (
-                <TableRow key={device.id} className="hover:bg-muted/30">
+              {CONFIGURATIONS.map((config) => (
+                <TableRow key={config.id} className="hover:bg-muted/30">
                   <TableCell className="pl-4">
                     <Checkbox
-                      checked={selected.has(device.id)}
-                      onCheckedChange={() => toggleOne(device.id)}
+                      checked={selected.has(config.id)}
+                      onCheckedChange={() => toggleOne(config.id)}
                     />
                   </TableCell>
-                  <TableCell className="text-[14px] font-medium text-foreground">
-                    <span className="flex items-center gap-2">
-                      {device.name} / IMEI {device.imei}
-                      {newDeviceId === device.id && (
-                        <span className="text-[11px] font-semibold tracking-wide px-1.5 py-0.5 rounded border border-border text-muted-foreground bg-muted">
-                          NEW
-                        </span>
-                      )}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-[14px] text-foreground">{device.fleet}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={device.status} />
-                  </TableCell>
-                  <TableCell className="text-[14px] text-foreground">{device.config}</TableCell>
+                  <TableCell className="text-[14px] font-medium text-foreground">{config.name}</TableCell>
+                  <TableCell className="text-[14px] text-foreground">{config.fleet}</TableCell>
+                  <TableCell><StatusBadge status={config.status} /></TableCell>
+                  <TableCell className="text-[14px] text-foreground">{config.os}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -165,8 +153,9 @@ export default function DevicesPage({ onRegister, newDeviceId }) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem>View details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit configuration</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Remove device</DropdownMenuItem>
+                        <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                        <DropdownMenuItem>Deploy</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

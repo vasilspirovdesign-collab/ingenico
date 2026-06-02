@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import DevicesPage from './pages/DevicesPage'
 import RegisterDevicePage from './pages/RegisterDevicePage'
+import ConfigurationsPage from './pages/ConfigurationsPage'
 
 export default function App() {
   const [page, setPage] = useState('devices')
@@ -32,11 +33,12 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+      <Sidebar activePage={page} onNavigate={setPage} />
       <main className="relative flex-1 overflow-hidden">
         {page === 'devices' && (
           <DevicesPage onRegister={() => setPage('register')} newDeviceId={newDeviceId} />
         )}
+        {page === 'configurations' && <ConfigurationsPage />}
         {page === 'register' && (
           <RegisterDevicePage
             onCancel={() => setPage('devices')}
