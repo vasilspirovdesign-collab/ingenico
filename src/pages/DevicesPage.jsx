@@ -48,7 +48,7 @@ function StatusBadge({ status }) {
   return null
 }
 
-export default function DevicesPage() {
+export default function DevicesPage({ onRegister }) {
   const [activeFilter, setActiveFilter] = useState('All 142')
   const [selected, setSelected] = useState(new Set())
   const [page, setPage] = useState(1)
@@ -84,7 +84,7 @@ export default function DevicesPage() {
             <h1 className="text-[24px] font-semibold text-foreground leading-tight">Devices</h1>
             <p className="text-[14px] text-muted-foreground mt-0.5">All terminals registerd to your organisation</p>
           </div>
-          <Button className="bg-foreground text-background hover:bg-foreground/90 rounded-lg px-4 h-9 text-[14px] font-medium">
+          <Button onClick={onRegister} className="bg-foreground text-background hover:bg-foreground/90 rounded-lg px-4 h-9 text-[14px] font-medium">
             Register Device
           </Button>
         </div>
