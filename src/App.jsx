@@ -1,7 +1,13 @@
+import Sidebar from './components/Sidebar'
+import DevicesPage from './pages/DevicesPage'
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-      <p className="text-muted-foreground">Ingenico</p>
+    <div className="flex h-screen overflow-hidden bg-background">
+      <Sidebar />
+      <main className="flex-1 overflow-hidden">
+        <DevicesPage />
+      </main>
     </div>
   )
 }
