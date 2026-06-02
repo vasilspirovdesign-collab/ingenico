@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Bell, MoreHorizontal, ArrowUpDown } from 'lucide-react'
+import { MoreHorizontal, ArrowUpDown } from 'lucide-react'
+import TopBar from '../components/TopBar'
 import { Button } from '../components/ui/button'
 import { Checkbox } from '../components/ui/checkbox'
 import { Card } from '../components/ui/card'
@@ -65,15 +66,7 @@ export default function DevicesPage({ onRegister, newDeviceId }) {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      {/* Top bar */}
-      <div className="flex items-center justify-end gap-3 px-6 py-3 border-b border-border shrink-0">
-        <button className="w-8 h-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-          <Bell className="w-4 h-4" />
-        </button>
-        <div className="w-8 h-8 rounded-full bg-muted overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-br from-zinc-300 to-zinc-500 rounded-full" />
-        </div>
-      </div>
+      <TopBar />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
