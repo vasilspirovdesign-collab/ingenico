@@ -6,7 +6,7 @@ import { Separator } from './ui/separator'
 const USER = {
   name: 'Admin User',
   email: 'admin@ingenico.com',
-  role: 'Fleet Administrator',
+  role: 'Platform Admin',
   initials: 'AU',
 }
 
