@@ -96,11 +96,6 @@ function NotificationItem({ item, onRead }) {
       onClick={() => onRead(item.id)}
       className="flex items-start gap-3 w-full px-4 py-3 hover:bg-muted/40 transition-colors text-left"
     >
-      {/* Avatar */}
-      <div className={cn('w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0', item.color)}>
-        {item.initials}
-      </div>
-
       {/* Content */}
       <div className="flex-1 min-w-0">
         <p className="text-[13px] font-medium text-foreground leading-snug line-clamp-2">{item.title}</p>
