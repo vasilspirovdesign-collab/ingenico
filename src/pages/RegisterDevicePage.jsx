@@ -3,6 +3,7 @@ import { Upload, CheckCircle2, ChevronDown, Plus } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { cn } from '../lib/utils'
+import ReviewModal from '../components/ReviewModal'
 
 const STEPS = ['Identify device', 'Assign to fleet', 'Apply configuration']
 const MODELS = ['Lane 3000', 'Lane 5000', 'Lane 7000', 'Move 5000']
@@ -20,7 +21,7 @@ const FLEETS = [
   { id: 3, name: 'Staging',              devices: 6,  config: null,            status: null     },
 ]
 
-function Stepper({ current }) {
+function Stepper({ current, onStepClick }) {
   return (
     <div className="flex items-center mb-8">
       {STEPS.map((step, i) => {
@@ -28,20 +29,23 @@ function Stepper({ current }) {
         const active = num === current
         return (
           <div key={step} className="flex items-center">
-            <div className="flex items-center gap-2">
+            <button
+              onClick={() => onStepClick?.(num)}
+              className="flex items-center gap-2 cursor-pointer group"
+            >
               <div className={cn(
-                'w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0',
-                active ? 'bg-foreground text-background' : 'border border-border text-muted-foreground'
+                'w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0 transition-colors',
+                active ? 'bg-foreground text-background' : 'border border-border text-muted-foreground group-hover:border-foreground group-hover:text-foreground'
               )}>
                 {num}
               </div>
               <span className={cn(
-                'text-[14px] whitespace-nowrap',
-                active ? 'font-medium text-foreground' : 'text-muted-foreground'
+                'text-[14px] whitespace-nowrap transition-colors',
+                active ? 'font-medium text-foreground' : 'text-muted-foreground group-hover:text-foreground'
               )}>
                 {step}
               </span>
-            </div>
+            </button>
             {i < STEPS.length - 1 && <div className="w-24 h-px bg-border mx-4" />}
           </div>
         )
@@ -50,7 +54,7 @@ function Stepper({ current }) {
   )
 }
 
-export default function RegisterDevicePage({ onCancel }) {
+export default function RegisterDevicePage({ onCancel, onConfirm }) {
   const [step, setStep] = useState(1)
   const [serial, setSerial] = useState('')
   const [model, setModel] = useState('Lane 3000')
@@ -59,6 +63,7 @@ export default function RegisterDevicePage({ onCancel }) {
   const [selectedFleet, setSelectedFleet] = useState(1)
   const [selectedConfig, setSelectedConfig] = useState('Retail Basic Config')
   const [configOpen, setConfigOpen] = useState(false)
+  const [reviewOpen, setReviewOpen] = useState(false)
   const fileRef = useRef()
   const configRef = useRef()
 
@@ -90,7 +95,7 @@ export default function RegisterDevicePage({ onCancel }) {
           <p className="text-[14px] text-muted-foreground mt-1">Add a Terminal to your organisation and assing it to a fleet.</p>
         </div>
 
-        <Stepper current={step} />
+        <Stepper current={step} onStepClick={setStep} />
 
         {/* ── Step 1 ── */}
         {step === 1 && (
@@ -233,7 +238,7 @@ export default function RegisterDevicePage({ onCancel }) {
           <div className="max-w-[644px]">
             <p className="text-[14px] font-medium text-foreground mb-3">Select Configuration</p>
 
-            <div className="flex items-start gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-6">
               {/* Custom dropdown */}
               <div ref={configRef} className="relative w-[370px]">
                 <button
@@ -266,9 +271,11 @@ export default function RegisterDevicePage({ onCancel }) {
                 )}
               </div>
 
+              <span className="text-[13px] text-muted-foreground shrink-0">or</span>
+
               <Button variant="outline" className="h-10 px-4 text-[14px] rounded-md gap-1.5 shrink-0">
                 <Plus className="w-4 h-4" />
-                New Configuration
+                Create New Configuration
               </Button>
             </div>
 
@@ -345,17 +352,39 @@ export default function RegisterDevicePage({ onCancel }) {
       </div>{/* end content */}
 
       {/* Footer */}
-      <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0">
+      <div className="flex items-center justify-between px-6 py-4 border-t border-border shrink-0">
+        <div>
+          {step > 1 && (
+            <button
+              onClick={() => setStep(s => s - 1)}
+              className="flex items-center gap-1.5 text-[14px] text-foreground hover:text-muted-foreground transition-colors"
+            >
+              <ChevronDown className="w-4 h-4 rotate-90" />
+              Back
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
         <Button variant="outline" onClick={onCancel} className="h-9 px-5 text-[14px] rounded-lg">
           Cancel
         </Button>
         <Button
-          onClick={() => step < 3 ? setStep(s => s + 1) : onCancel?.()}
+          onClick={() => step < 3 ? setStep(s => s + 1) : setReviewOpen(true)}
           className="h-9 px-5 text-[14px] rounded-lg bg-foreground text-background hover:bg-foreground/90"
         >
           {step === 3 ? 'Review & Register' : 'Continue'}
         </Button>
+        </div>
       </div>
+
+      <ReviewModal
+        open={reviewOpen}
+        onClose={() => setReviewOpen(false)}
+        onConfirm={onConfirm || onCancel}
+        device={{ label: label || 'Checkout-12, Main Store', model, serial: serial || 'SN-2094-0041', imei: '354 882 11 123456 7' }}
+        fleet={FLEETS.find(f => f.id === selectedFleet)}
+        config={{ name: selectedConfig, osVersion: 'INGCO 9.1.2 - Current' }}
+      />
     </div>
   )
 }
