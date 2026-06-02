@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Bell, MoreHorizontal, ArrowUpDown } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Checkbox } from '../components/ui/checkbox'
-import { Badge } from '../components/ui/badge'
 import { Card } from '../components/ui/card'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -48,7 +47,7 @@ function StatusBadge({ status }) {
   return null
 }
 
-export default function DevicesPage({ onRegister }) {
+export default function DevicesPage({ onRegister, newDeviceId }) {
   const [activeFilter, setActiveFilter] = useState('All 142')
   const [selected, setSelected] = useState(new Set())
   const [page, setPage] = useState(1)
@@ -150,7 +149,14 @@ export default function DevicesPage({ onRegister }) {
                     />
                   </TableCell>
                   <TableCell className="text-[14px] font-medium text-foreground">
-                    {device.name} / IMEI {device.imei}
+                    <span className="flex items-center gap-2">
+                      {device.name} / IMEI {device.imei}
+                      {newDeviceId === device.id && (
+                        <span className="text-[11px] font-semibold tracking-wide px-1.5 py-0.5 rounded border border-border text-muted-foreground bg-muted">
+                          NEW
+                        </span>
+                      )}
+                    </span>
                   </TableCell>
                   <TableCell className="text-[14px] text-foreground">{device.fleet}</TableCell>
                   <TableCell>
