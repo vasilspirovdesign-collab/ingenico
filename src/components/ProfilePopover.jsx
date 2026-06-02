@@ -1,6 +1,12 @@
-import { UserCog, UserPlus, LogOut } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { Separator } from './ui/separator'
+import { UserCog, UserPlus, LogOut, ChevronDown } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu'
 
 const USER = {
   name: 'Admin User',
@@ -11,58 +17,54 @@ const USER = {
 
 export default function ProfilePopover() {
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button className="w-8 h-8 rounded-full bg-gradient-to-br from-zinc-300 to-zinc-500 flex items-center justify-center text-[12px] font-semibold text-white hover:ring-2 hover:ring-border transition-all shrink-0">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="w-8 h-8 rounded-full bg-gradient-to-br from-zinc-400 to-zinc-600 flex items-center justify-center text-[12px] font-semibold text-white hover:ring-2 hover:ring-border transition-all shrink-0 outline-none">
           {USER.initials}
         </button>
-      </PopoverTrigger>
+      </DropdownMenuTrigger>
 
-      <PopoverContent align="end" className="w-[300px] p-0 rounded-2xl shadow-xl border border-border overflow-hidden">
-        {/* Avatar + identity */}
-        <div className="flex flex-col items-center px-6 pt-6 pb-5">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-zinc-400 to-zinc-600 flex items-center justify-center text-[22px] font-semibold text-white mb-3">
+      <DropdownMenuContent align="end" className="w-[260px]">
+        {/* Identity */}
+        <DropdownMenuLabel className="flex flex-col items-center text-center gap-2 py-4">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-zinc-400 to-zinc-600 flex items-center justify-center text-[20px] font-semibold text-white">
             {USER.initials}
           </div>
-          <p className="text-[16px] font-semibold text-foreground">{USER.name}</p>
-          <p className="text-[13px] text-muted-foreground">{USER.email}</p>
-          <span className="mt-2 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+          <div>
+            <p className="text-[15px] font-semibold text-foreground">{USER.name}</p>
+            <p className="text-[12px] font-normal text-muted-foreground">{USER.email}</p>
+          </div>
+          <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
             {USER.role}
           </span>
+        </DropdownMenuLabel>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem className="gap-2 cursor-pointer">
+          <UserCog className="w-4 h-4" />
+          Manage your Account
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-2 cursor-pointer">
+          <UserPlus className="w-4 h-4" />
+          Add another account
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem className="gap-2 cursor-pointer text-destructive focus:text-destructive">
+          <LogOut className="w-4 h-4" />
+          Sign out
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <div className="flex items-center justify-center gap-2 px-2 py-2">
+          <button className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</button>
+          <span className="text-muted-foreground text-[11px]">·</span>
+          <button className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">Terms of Service</button>
         </div>
-
-        <Separator />
-
-        {/* Actions */}
-        <div className="px-2 py-2 flex flex-col gap-0.5">
-          <button className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[14px] text-foreground hover:bg-muted transition-colors text-left">
-            <UserCog className="w-4 h-4 text-muted-foreground shrink-0" />
-            Manage your Account
-          </button>
-          <button className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[14px] text-foreground hover:bg-muted transition-colors text-left">
-            <UserPlus className="w-4 h-4 text-muted-foreground shrink-0" />
-            Add another account
-          </button>
-        </div>
-
-        <Separator />
-
-        <div className="px-2 py-2">
-          <button className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[14px] text-foreground hover:bg-muted transition-colors text-left">
-            <LogOut className="w-4 h-4 text-muted-foreground shrink-0" />
-            Sign out
-          </button>
-        </div>
-
-        <Separator />
-
-        {/* Footer */}
-        <div className="flex items-center justify-center gap-2 px-4 py-3">
-          <button className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</button>
-          <span className="text-muted-foreground text-[12px]">·</span>
-          <button className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Terms of Service</button>
-        </div>
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
