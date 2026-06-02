@@ -6,37 +6,37 @@ const NAV = [
   {
     label: 'FLEET',
     items: [
-      { icon: LayoutDashboard, label: 'Devices', active: true },
-      { icon: LayoutList, label: 'Fleets' },
+      { icon: LayoutDashboard, label: 'Devices',        page: 'devices'        },
+      { icon: LayoutList,      label: 'Fleets',         page: 'fleets'         },
     ],
   },
   {
     label: 'DEPLOY',
     items: [
-      { icon: Settings, label: 'Configurations' },
-      { icon: Package, label: 'Deployments' },
+      { icon: Settings, label: 'Configurations', page: 'configurations' },
+      { icon: Package,  label: 'Deployments',    page: 'deployments'    },
     ],
   },
   {
     label: 'CATALOG',
     items: [
-      { icon: Box, label: 'Packages' },
-      { icon: AppWindow, label: 'Applications' },
+      { icon: Box,       label: 'Packages',      page: 'packages'      },
+      { icon: AppWindow, label: 'Applications',  page: 'applications'  },
     ],
   },
   {
     label: 'SYSTEM',
     items: [
-      { icon: Bell, label: 'Alerts' },
-      { icon: RefreshCw, label: 'Reports' },
-      { icon: FileText, label: 'Word Assistant' },
-      { icon: Users, label: 'Users' },
-      { icon: FileText, label: 'Audit log' },
+      { icon: Bell,      label: 'Alerts',         page: 'alerts'        },
+      { icon: RefreshCw, label: 'Reports',        page: 'reports'       },
+      { icon: FileText,  label: 'Word Assistant', page: 'word-assistant'},
+      { icon: Users,     label: 'Users',          page: 'users'         },
+      { icon: FileText,  label: 'Audit log',      page: 'audit-log'     },
     ],
   },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ activePage = 'devices', onNavigate }) {
   return (
     <aside className="w-[255px] shrink-0 flex flex-col bg-sidebar border-r border-sidebar-border h-screen sticky top-0">
       {/* Header */}
@@ -62,9 +62,10 @@ export default function Sidebar() {
               {group.items.map((item) => (
                 <button
                   key={item.label}
+                  onClick={() => onNavigate?.(item.page)}
                   className={cn(
                     'flex items-center gap-2 h-8 px-2 rounded-md w-full text-left transition-colors',
-                    item.active
+                    item.page === activePage
                       ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/60'
                   )}
