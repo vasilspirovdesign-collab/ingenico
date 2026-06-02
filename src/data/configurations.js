@@ -1,14 +1,14 @@
 export const CONFIGURATIONS = [
-  { id: 1,  name: 'Banking-Sofia-v4.2.0',  fleet: 'Banking - Sofia City',   status: 'Offline', os: '8.4.2' },
-  { id: 2,  name: 'Banking-Varna-v4.2.0',  fleet: 'Banking - Varna City',   status: 'Online',  os: '8.4.3' },
-  { id: 3,  name: 'Banking-Burgas-v4.2.0', fleet: 'Banking - Burgas City',  status: 'Online',  os: '8.4.4' },
-  { id: 4,  name: 'Banking-Plovdiv-v4.2.0',fleet: 'Banking - Plovdiv City', status: 'Offline', os: '8.4.5' },
-  { id: 5,  name: 'Retail-Sofia-v3.1.3',   fleet: 'Retail - Sofia City',    status: 'Online',  os: '8.4.5' },
-  { id: 6,  name: 'Retail-Sofia-v3.1.3',   fleet: 'Retail - Sofia City',    status: 'Error',   os: '8.4.5' },
-  { id: 7,  name: 'Retail-Sofia-v3.1.0',   fleet: 'Retail - Sofia City',    status: 'Online',  os: '8.4.5' },
-  { id: 8,  name: 'Retail-Varna-v3.1.0',   fleet: 'Retail - Varna City',    status: 'Online',  os: '8.4.5' },
-  { id: 9,  name: 'Retail-Burgas-v3.0.1',  fleet: 'Retail - Burgas City',   status: 'Offline', os: '8.4.3' },
-  { id: 10, name: 'Staging-v1.0.0',         fleet: 'Staging',                status: 'Offline', os: '8.5.0' },
+  { id: 1,  name: 'Sofia-Retail-v3.2.0',     fleet: 'Retail — Sofia Central',      status: 'Online',  os: '9.1.2' },
+  { id: 2,  name: 'Plovdiv-Retail-v3.2.0',   fleet: 'Retail — Plovdiv South',      status: 'Online',  os: '9.1.2' },
+  { id: 3,  name: 'Varna-Hospitality-v2.9.4', fleet: 'Hospitality — Varna Coast',  status: 'Offline', os: '8.4.5' },
+  { id: 4,  name: 'Bansko-Resort-v2.10.0',   fleet: 'Hospitality — Bansko Resort', status: 'Offline', os: '8.4.8' },
+  { id: 5,  name: 'Bulgaria-Base-v1.0.0',    fleet: 'All fleets',                  status: 'Online',  os: '9.0.0' },
+  { id: 6,  name: 'PCI-Compliant-v4.1.0',    fleet: 'Retail + Pharmacy',           status: 'Online',  os: '9.1.2' },
+  { id: 7,  name: 'NFC-Enabled-v2.0.0',      fleet: 'Sofia + Varna',               status: 'Error',   os: '9.1.0' },
+  { id: 8,  name: 'Trakia-Fuel-v1.3.0',      fleet: 'Fuel — Trakia Highway',       status: 'Online',  os: '8.4.5' },
+  { id: 9,  name: 'Staging-Sofia-v0.9.0',    fleet: 'Staging — Sofia Lab',         status: 'Offline', os: '9.2.0' },
+  { id: 10, name: 'Legacy-Support-v2.1.0',   fleet: 'Older hardware cohorts',      status: 'Offline', os: '7.8.3' },
 ]
 
 export const CONFIG_STATS = [

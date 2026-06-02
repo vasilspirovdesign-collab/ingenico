@@ -10,16 +10,25 @@ const STEPS = ['Identify device', 'Assign to fleet', 'Apply configuration']
 const MODELS = ['Lane 3000', 'Lane 5000', 'Lane 7000', 'Move 5000']
 
 const CONFIGS = [
-  { id: 1, name: 'Banking-Sofia-v4.2.0', active: false },
-  { id: 2, name: 'Banking-Sofia-v4.1.3', active: false },
-  { id: 3, name: 'Retail-Sofia-v3.1.3',  active: true  },
-  { id: 4, name: 'Retail-Sofia-v3.1.0',  active: false },
+  { id: 1, name: 'Sofia-Retail-v3.2.0',      active: true  },
+  { id: 2, name: 'Plovdiv-Retail-v3.2.0',    active: false },
+  { id: 3, name: 'Varna-Hospitality-v2.9.4', active: false },
+  { id: 4, name: 'PCI-Compliant-v4.1.0',     active: false },
+  { id: 5, name: 'Bulgaria-Base-v1.0.0',     active: false },
+  { id: 6, name: 'NFC-Enabled-v2.0.0',       active: false },
 ]
 
 const FLEETS = [
-  { id: 1, name: 'Retail - Sofia City',  devices: 42, config: 'Config v3.1.0', status: 'Active' },
-  { id: 2, name: 'Banking - Bulgaria',   devices: 6,  config: null,            status: null     },
-  { id: 3, name: 'Staging',              devices: 6,  config: null,            status: null     },
+  { id: 1,  name: 'Retail — Sofia Central',      devices: 42, config: 'Sofia-Retail-v3.2.0',      status: 'Active' },
+  { id: 2,  name: 'Retail — Plovdiv South',      devices: 28, config: 'Plovdiv-Retail-v3.2.0',    status: 'Active' },
+  { id: 3,  name: 'Hospitality — Varna Coast',   devices: 15, config: 'Varna-Hospitality-v2.9.4', status: 'Active' },
+  { id: 4,  name: 'Hospitality — Bansko Resort', devices: 8,  config: 'Bansko-Resort-v2.10.0',    status: 'Active' },
+  { id: 5,  name: 'Pharmacy — Burgas',           devices: 6,  config: null,                       status: null     },
+  { id: 6,  name: 'Fuel — Trakia Highway',       devices: 12, config: 'Trakia-Fuel-v1.3.0',       status: 'Active' },
+  { id: 7,  name: 'Franchise — Ruse',            devices: 9,  config: null,                       status: null     },
+  { id: 8,  name: 'Events — Sofia Arena',        devices: 20, config: 'Bulgaria-Base-v1.0.0',     status: 'Active' },
+  { id: 9,  name: 'Staging — Sofia Lab',         devices: 6,  config: null,                       status: null     },
+  { id: 10, name: 'QA — Plovdiv Office',         devices: 4,  config: null,                       status: null     },
 ]
 
 function Stepper({ current, onStepClick }) {
