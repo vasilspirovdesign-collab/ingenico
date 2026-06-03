@@ -1,4 +1,4 @@
-import { LayoutDashboard, LayoutList, Settings, Package, Box, AppWindow, Users, FileText } from 'lucide-react'
+import { LayoutDashboard, LayoutList, Settings, Package, Box, AppWindow, Users, FileText, Smartphone } from 'lucide-react'
 import logo from '../assets/logo.svg'
 import { cn } from '../lib/utils'
 
@@ -20,15 +20,15 @@ const NAV = [
   {
     label: 'CATALOG',
     items: [
-      { icon: Box,       label: 'Packages',     page: 'packages'     },
-      { icon: AppWindow, label: 'Applications', page: 'applications' },
+      { icon: Box,       label: 'Packages',     page: 'packages',     disabled: true },
+      { icon: AppWindow, label: 'Applications', page: 'applications', disabled: true },
     ],
   },
   {
     label: 'SYSTEM',
     items: [
-      { icon: Users,    label: 'Users',     page: 'users'     },
-      { icon: FileText, label: 'Audit log', page: 'audit-log' },
+      { icon: Users,    label: 'Users',     page: 'users',     disabled: true },
+      { icon: FileText, label: 'Audit log', page: 'audit-log', disabled: true },
     ],
   },
 ]
@@ -59,12 +59,14 @@ export default function Sidebar({ activePage = 'devices', onNavigate }) {
               {group.items.map((item) => (
                 <button
                   key={item.label}
-                  onClick={() => onNavigate?.(item.page)}
+                  onClick={() => !item.disabled && onNavigate?.(item.page)}
                   className={cn(
                     'flex items-center gap-2 h-8 px-2 rounded-md w-full text-left transition-colors',
-                    item.page === activePage
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent/60'
+                    item.disabled
+                      ? 'opacity-40 cursor-not-allowed text-sidebar-foreground'
+                      : item.page === activePage
+                        ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                        : 'text-sidebar-foreground hover:bg-sidebar-accent/60'
                   )}
                 >
                   <item.icon className="w-4 h-4 shrink-0" />
@@ -75,6 +77,22 @@ export default function Sidebar({ activePage = 'devices', onNavigate }) {
           </div>
         ))}
       </nav>
+
+      {/* Bottom: Device Mockups */}
+      <div className="shrink-0 p-2 border-t border-sidebar-border">
+        <button
+          onClick={() => onNavigate?.('mockups')}
+          className={cn(
+            'flex items-center gap-2 h-8 px-2 rounded-md w-full text-left transition-colors',
+            activePage === 'mockups'
+              ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+              : 'text-sidebar-foreground hover:bg-sidebar-accent/60'
+          )}
+        >
+          <Smartphone className="w-4 h-4 shrink-0" />
+          <span className="text-[14px] font-normal leading-5 truncate">Device Mockups</span>
+        </button>
+      </div>
     </aside>
   )
 }
