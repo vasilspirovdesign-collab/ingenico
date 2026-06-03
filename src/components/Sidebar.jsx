@@ -1,4 +1,4 @@
-import { LayoutDashboard, LayoutList, Settings, Package, Box, AppWindow, Users, FileText, Bell, RefreshCw } from 'lucide-react'
+import { LayoutDashboard, LayoutList, Settings, Package, Box, AppWindow, Users, FileText } from 'lucide-react'
 import logo from '../assets/logo.svg'
 import { cn } from '../lib/utils'
 
@@ -20,18 +20,15 @@ const NAV = [
   {
     label: 'CATALOG',
     items: [
-      { icon: Box,       label: 'Packages',      page: 'packages'      },
-      { icon: AppWindow, label: 'Applications',  page: 'applications'  },
+      { icon: Box,       label: 'Packages',     page: 'packages'     },
+      { icon: AppWindow, label: 'Applications', page: 'applications' },
     ],
   },
   {
     label: 'SYSTEM',
     items: [
-      { icon: Bell,      label: 'Alerts',         page: 'alerts'        },
-      { icon: RefreshCw, label: 'Reports',        page: 'reports'       },
-      { icon: FileText,  label: 'Word Assistant', page: 'word-assistant'},
-      { icon: Users,     label: 'Users',          page: 'users'         },
-      { icon: FileText,  label: 'Audit log',      page: 'audit-log'     },
+      { icon: Users,    label: 'Users',     page: 'users'     },
+      { icon: FileText, label: 'Audit log', page: 'audit-log' },
     ],
   },
 ]

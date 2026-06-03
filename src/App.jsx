@@ -3,9 +3,14 @@ import Sidebar from './components/Sidebar'
 import DevicesPage from './pages/DevicesPage'
 import RegisterDevicePage from './pages/RegisterDevicePage'
 import ConfigurationsPage from './pages/ConfigurationsPage'
+import NewConfigurationPage from './pages/NewConfigurationPage'
+import FleetsPage from './pages/FleetsPage'
 
 export default function App() {
   const [page, setPage] = useState('devices')
+  const [newConfigSource, setNewConfigSource] = useState(null)
+  const [appliedConfig, setAppliedConfig] = useState(null)
+  const [editingDevice, setEditingDevice] = useState(null)
   const [registering, setRegistering] = useState(false)
   const [newDeviceId, setNewDeviceId] = useState(null)
   const [showToast, setShowToast] = useState(false)
@@ -36,13 +41,38 @@ export default function App() {
       <Sidebar activePage={page} onNavigate={setPage} />
       <main className="relative flex-1 overflow-hidden">
         {page === 'devices' && (
-          <DevicesPage onRegister={() => setPage('register')} newDeviceId={newDeviceId} />
+          <DevicesPage
+            onRegister={() => { setEditingDevice(null); setPage('register') }}
+            onEditDevice={(device) => { setEditingDevice(device); setPage('register') }}
+            newDeviceId={newDeviceId}
+          />
         )}
-        {page === 'configurations' && <ConfigurationsPage />}
+        {page === 'fleets' && <FleetsPage />}
+        {page === 'configurations' && (
+          <ConfigurationsPage onNewConfig={() => { setNewConfigSource(null); setPage('new-configuration') }} />
+        )}
+        {page === 'new-configuration' && (
+          <NewConfigurationPage
+            ctaLabel={newConfigSource === 'register' ? 'Review & Apply' : 'Review & Create'}
+            onCancel={() => setPage(newConfigSource === 'register' ? 'register' : 'configurations')}
+            onSave={(configName) => {
+              if (newConfigSource === 'register') {
+                setAppliedConfig(configName)
+                setPage('register')
+              } else {
+                setPage('configurations')
+              }
+            }}
+          />
+        )}
         {page === 'register' && (
           <RegisterDevicePage
             onCancel={() => setPage('devices')}
             onConfirm={handleConfirm}
+            onNewConfig={() => { setNewConfigSource('register'); setPage('new-configuration') }}
+            initialConfig={appliedConfig}
+            onConfigApplied={() => setAppliedConfig(null)}
+            editingDevice={editingDevice}
           />
         )}
 

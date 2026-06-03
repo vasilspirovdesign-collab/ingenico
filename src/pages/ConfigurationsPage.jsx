@@ -34,6 +34,14 @@ function StatusBadge({ status }) {
       Offline
     </span>
   )
+  if (status === 'Deploying') return (
+    <span className="flex items-center gap-1.5 text-[13px] text-sky-600">
+      <svg className="w-4 h-4 animate-spin" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeDasharray="10 6" />
+      </svg>
+      Deploying
+    </span>
+  )
   if (status === 'Error') return (
     <span className="flex items-center gap-1.5 text-[13px] text-red-500">
       <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
@@ -47,7 +55,7 @@ function StatusBadge({ status }) {
   return null
 }
 
-export default function ConfigurationsPage() {
+export default function ConfigurationsPage({ onNewConfig }) {
   const [activeFilter, setActiveFilter] = useState('All 14')
   const [selected, setSelected] = useState(new Set())
   const [page, setPage] = useState(1)
@@ -64,7 +72,7 @@ export default function ConfigurationsPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden relative">
       <TopBar />
 
       {/* Content */}
@@ -75,7 +83,10 @@ export default function ConfigurationsPage() {
             <h1 className="text-[24px] font-semibold text-foreground leading-tight">Configurations</h1>
             <p className="text-[14px] text-muted-foreground mt-0.5">Manage OS versions, packages and apps pushed to your fleets/</p>
           </div>
-          <Button className="bg-foreground text-background hover:bg-foreground/90 rounded-lg px-4 h-9 text-[14px] font-medium">
+          <Button
+            onClick={onNewConfig}
+            className="bg-foreground text-background hover:bg-foreground/90 rounded-lg px-4 h-9 text-[14px] font-medium"
+          >
             New Configuration
           </Button>
         </div>
@@ -141,7 +152,12 @@ export default function ConfigurationsPage() {
                     />
                   </TableCell>
                   <TableCell className="text-[14px] font-medium text-foreground">{config.name}</TableCell>
-                  <TableCell className="text-[14px] text-foreground">{config.fleet}</TableCell>
+                  <TableCell className="text-[14px] text-foreground">
+                    {config.fleet}
+                    {config.fleetExtra && (
+                      <span className="ml-1 font-semibold">+ {config.fleetExtra} more</span>
+                    )}
+                  </TableCell>
                   <TableCell><StatusBadge status={config.status} /></TableCell>
                   <TableCell className="text-[14px] text-foreground">{config.os}</TableCell>
                   <TableCell>
@@ -167,7 +183,7 @@ export default function ConfigurationsPage() {
 
         {/* Pagination */}
         <div className="flex items-center justify-between mt-4 text-[13px] text-muted-foreground">
-          <span>{selected.size} of 68 row(s) selected.</span>
+          <span>0 of 68 row(s) selected.</span>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span>Rows per page</span>
@@ -198,6 +214,21 @@ export default function ConfigurationsPage() {
           </div>
         </div>
       </div>
+
+      {/* Multi-select action bar */}
+      {selected.size > 0 && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-4xl bg-white rounded-[10px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] border border-border flex items-center justify-between px-6 py-[18px] z-10">
+          <span className="text-[14px] text-foreground">{selected.size} selected</span>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" className="h-9 px-4 text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)]">
+              Archive
+            </Button>
+            <Button variant="outline" className="h-9 px-4 text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)]">
+              Deploy
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
