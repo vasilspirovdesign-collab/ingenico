@@ -40,28 +40,32 @@ function Badge({ type }) {
   )
 }
 
+function PackageRow({ row, isLast }) {
+  const [checked, setChecked] = useState(row.badge === 'Required' || row.badge === 'Included')
+  return (
+    <div className={`flex items-center h-[49px] ${!isLast ? 'border-b border-border' : ''}`}>
+      <div className="pl-2 pr-1 shrink-0">
+        <Checkbox checked={checked} onCheckedChange={(val) => setChecked(!!val)} />
+      </div>
+      <div className="w-[130px] px-2 text-[14px] text-foreground shrink-0">{row.name}</div>
+      <div className="flex-1 px-2 text-[14px] text-foreground">{row.detail ?? row.version}</div>
+      <div className="w-[110px] px-2 shrink-0">
+        <Badge type={row.badge} />
+      </div>
+      <div className="px-2 shrink-0">
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100">
+          <MoreHorizontal className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 function PackageTable({ rows }) {
   return (
     <div className="rounded-lg border border-border overflow-hidden w-[523px]">
       {rows.map((row, i) => (
-        <div
-          key={row.id}
-          className={`flex items-center h-[49px] ${i < rows.length - 1 ? 'border-b border-border' : ''}`}
-        >
-          <div className="pl-2 pr-1 shrink-0">
-            <Checkbox />
-          </div>
-          <div className="w-[130px] px-2 text-[14px] text-foreground shrink-0">{row.name}</div>
-          <div className="flex-1 px-2 text-[14px] text-foreground">{row.detail ?? row.version}</div>
-          <div className="w-[110px] px-2 shrink-0">
-            <Badge type={row.badge} />
-          </div>
-          <div className="px-2 shrink-0">
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100">
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+        <PackageRow key={row.id} row={row} isLast={i === rows.length - 1} />
       ))}
     </div>
   )
