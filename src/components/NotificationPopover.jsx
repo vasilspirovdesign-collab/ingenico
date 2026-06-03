@@ -10,7 +10,7 @@ const NOTIFICATIONS = {
   Today: [
     {
       id: 1,
-      title: 'Sofia-Checkout-01 was successfully registered to Retail — Sofia Central',
+      title: 'Sofia-Checkout-01 was successfully registered to Retail - Sofia Central',
       tag: 'Device Registered',
       tagColor: 'text-blue-500',
       time: 'Jun 2, 2026 · 10:14 AM',
@@ -18,7 +18,7 @@ const NOTIFICATIONS = {
     },
     {
       id: 2,
-      title: 'Varna-Counter-03 went offline in Hospitality — Varna Coast',
+      title: 'Varna-Counter-03 went offline in Hospitality - Varna Coast',
       tag: 'Device Offline',
       tagColor: 'text-destructive',
       time: 'Jun 2, 2026 · 9:42 AM',
@@ -26,7 +26,7 @@ const NOTIFICATIONS = {
     },
     {
       id: 3,
-      title: 'Sofia-Retail-v3.2.0 deployed successfully to Retail — Sofia Central',
+      title: 'Sofia-Retail-v3.2.0 deployed successfully to Retail - Sofia Central',
       tag: 'Configuration Deployed',
       tagColor: 'text-green-600',
       time: 'Jun 2, 2026 · 8:55 AM',
@@ -34,7 +34,7 @@ const NOTIFICATIONS = {
     },
     {
       id: 4,
-      title: 'Stara-Zagora-Bar-1 is reporting an error in Hospitality — Bansko Resort',
+      title: 'Stara-Zagora-Bar-1 is reporting an error in Hospitality - Bansko Resort',
       tag: 'Device Error',
       tagColor: 'text-orange-500',
       time: 'Jun 2, 2026 · 8:03 AM',
@@ -52,7 +52,7 @@ const NOTIFICATIONS = {
   Yesterday: [
     {
       id: 6,
-      title: 'Plovdiv-Kiosk-A was successfully registered to Retail — Plovdiv South',
+      title: 'Plovdiv-Kiosk-A was successfully registered to Retail - Plovdiv South',
       tag: 'Device Registered',
       tagColor: 'text-blue-500',
       time: 'Jun 1, 2026 · 4:10 PM',
@@ -60,7 +60,7 @@ const NOTIFICATIONS = {
     },
     {
       id: 7,
-      title: 'Trakia-Fuel-v1.3.0 deployed successfully to Fuel — Trakia Highway',
+      title: 'Trakia-Fuel-v1.3.0 deployed successfully to Fuel - Trakia Highway',
       tag: 'Configuration Deployed',
       tagColor: 'text-green-600',
       time: 'Jun 1, 2026 · 2:45 PM',
@@ -68,7 +68,7 @@ const NOTIFICATIONS = {
     },
     {
       id: 8,
-      title: 'Dobrich-Pharmacy-01 went offline in Pharmacy — Burgas',
+      title: 'Dobrich-Pharmacy-01 went offline in Pharmacy - Burgas',
       tag: 'Device Offline',
       tagColor: 'text-destructive',
       time: 'Jun 1, 2026 · 11:20 AM',
@@ -108,7 +108,7 @@ export default function NotificationPopover() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-[400px] p-0">
+      <PopoverContent align="end" className="w-[400px] p-0 flex flex-col max-h-[560px] overflow-hidden">
         {/* Header */}
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-start justify-between">

@@ -127,7 +127,7 @@ export default function ReviewModal({ open, onClose, onConfirm, device, fleet, c
               Cancel
             </Button>
             <Button onClick={onConfirm} className="h-9 px-5 text-[14px] rounded-lg bg-foreground text-background hover:bg-foreground/90">
-              Confirm Registration
+              Confirm
             </Button>
           </div>
         </div>
