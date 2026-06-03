@@ -196,11 +196,13 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
             </div>
           </div>
 
-          {/* "or enter manually" — centered, short lines */}
-          <div className="flex items-center justify-center gap-6 px-6 pb-4">
-            <div className="w-14 h-px bg-border" />
-            <span className="text-[13px] text-muted-foreground shrink-0">or enter manually</span>
-            <div className="w-14 h-px bg-border" />
+          {/* "or enter manually" — matches drag & drop width */}
+          <div className="px-6 pb-4">
+            <div className="flex items-center gap-4 w-[664px]">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-[13px] text-muted-foreground shrink-0">or enter manually</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
           </div>
 
           {/* Form — left-aligned, natural width */}
