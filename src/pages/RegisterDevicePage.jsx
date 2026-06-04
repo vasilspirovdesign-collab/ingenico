@@ -35,30 +35,32 @@ const FLEETS = [
 
 function Stepper({ current, onStepClick }) {
   return (
-    <div className="flex items-center mb-8">
+    <div className="flex items-center gap-6 mb-8">
       {STEPS.map((step, i) => {
         const num = i + 1
         const active = num === current
         return (
-          <div key={step} className="flex items-center">
+          <div key={step} className="flex items-center gap-6">
             <button
               onClick={() => onStepClick?.(num)}
-              className="flex items-center gap-2 cursor-pointer group"
+              className="flex items-center gap-2"
             >
               <div className={cn(
-                'w-7 h-7 rounded-md flex items-center justify-center text-[13px] font-semibold shrink-0 transition-colors',
-                active ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground group-hover:bg-foreground/10'
+                'w-8 h-8 rounded-md flex items-center justify-center text-[14px] shrink-0',
+                active ? 'bg-foreground text-background' : 'bg-[#f5f5f5] text-foreground'
               )}>
                 {num}
               </div>
               <span className={cn(
-                'text-[14px] whitespace-nowrap transition-colors',
-                active ? 'font-medium text-foreground' : 'text-muted-foreground group-hover:text-foreground'
+                'text-[14px] font-medium whitespace-nowrap',
+                active ? 'text-foreground' : 'text-muted-foreground'
               )}>
                 {step}
               </span>
             </button>
-            {i < STEPS.length - 1 && <div className="w-14 h-px bg-border mx-4" />}
+            {i < STEPS.length - 1 && (
+              <div className="w-14 h-px bg-border" />
+            )}
           </div>
         )
       })}
