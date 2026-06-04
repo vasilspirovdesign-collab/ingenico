@@ -8,15 +8,15 @@ import ReviewModal from '../components/ReviewModal'
 import { DEVICES } from '../data/devices'
 
 const STEPS = ['Identify device', 'Assign to fleet', 'Apply configuration']
-const MODELS = ['Lane 3000', 'Lane 5000', 'Lane 7000', 'Move 5000']
 
 const CONFIGS = [
-  { id: 1, name: 'Sofia-Retail-v3.2.0',      active: true  },
-  { id: 2, name: 'Plovdiv-Retail-v3.2.0',    active: false },
-  { id: 3, name: 'Varna-Hospitality-v2.9.4', active: false },
-  { id: 4, name: 'PCI-Compliant-v4.1.0',     active: false },
-  { id: 5, name: 'Bulgaria-Base-v1.0.0',     active: false },
-  { id: 6, name: 'NFC-Enabled-v2.0.0',       active: false },
+  { id: 1, name: 'Sofia-Retail-v3.2.0',      category: 'RETAIL',       badge: 'Active'  },
+  { id: 2, name: 'Sofia-Retail-v3.1.0',      category: 'RETAIL',       badge: null       },
+  { id: 3, name: 'Plovdiv-Retail-v3.2.0',    category: 'RETAIL',       badge: null       },
+  { id: 4, name: 'Trakia-Fuel-v1.3.0',       category: 'FUEL',         badge: 'Latest'  },
+  { id: 5, name: 'Trakia-Fuel-v1.2.2',       category: 'FUEL',         badge: null       },
+  { id: 6, name: 'PCI-Compliant-v4.1.0',     category: 'HOSPITALITY',  badge: null       },
+  { id: 7, name: 'Bulgaria-Base-v1.0.0',     category: 'BASE',         badge: null       },
 ]
 
 const FLEETS = [
@@ -39,27 +39,37 @@ function Stepper({ current, onStepClick }) {
       {STEPS.map((step, i) => {
         const num = i + 1
         const active = num === current
+        const completed = num < current
+        const future = num > current
         return (
           <div key={step} className="flex items-center gap-6">
             <button
-              onClick={() => onStepClick?.(num)}
-              className="flex items-center gap-2"
+              onClick={() => !future && onStepClick?.(num)}
+              className={cn('flex items-center gap-2', future ? 'cursor-default' : 'cursor-pointer')}
             >
               <div className={cn(
-                'w-8 h-8 rounded-md flex items-center justify-center text-[14px] shrink-0',
-                active ? 'bg-foreground text-background' : 'bg-[#f5f5f5] text-foreground'
+                'w-8 h-8 rounded-md flex items-center justify-center text-[14px] shrink-0 transition-colors',
+                active    && 'bg-foreground text-background',
+                completed && 'bg-foreground text-background',
+                future    && 'bg-[#f5f5f5] text-muted-foreground/40'
               )}>
-                {num}
+                {completed ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 13l4 4L19 7"/>
+                  </svg>
+                ) : num}
               </div>
               <span className={cn(
-                'text-[14px] font-medium whitespace-nowrap',
-                active ? 'text-foreground' : 'text-muted-foreground'
+                'text-[14px] font-medium whitespace-nowrap transition-colors',
+                active    && 'text-foreground',
+                completed && 'text-foreground',
+                future    && 'text-muted-foreground/40'
               )}>
                 {step}
               </span>
             </button>
             {i < STEPS.length - 1 && (
-              <div className="w-14 h-px bg-border" />
+              <div className={cn('w-14 h-px transition-colors', completed ? 'bg-foreground/30' : 'bg-border')} />
             )}
           </div>
         )
@@ -129,11 +139,10 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
     return match ? match.id : 1
   })
   const [selectedConfig, setSelectedConfig] = useState(() => editingDevice?.config ?? 'Retail Basic Config')
-  const [configOpen, setConfigOpen] = useState(false)
+  const [configSearch, setConfigSearch] = useState('')
   const [reviewOpen, setReviewOpen] = useState(false)
   const [scrollPercent, setScrollPercent] = useState(0)
   const fileRef = useRef()
-  const configRef = useRef()
   const resultsRef = useRef()
 
   const handleResultsScroll = () => {
@@ -142,14 +151,6 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
     const max = el.scrollHeight - el.clientHeight
     setScrollPercent(max > 0 ? el.scrollTop / max : 0)
   }
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (configRef.current && !configRef.current.contains(e.target)) setConfigOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
 
   useEffect(() => {
     if (initialConfig) {
@@ -174,9 +175,6 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
   }
 
   const firstDevice = addedDevices[0]
-  const deviceId = firstDevice
-    ? `${model} / IMEI ${firstDevice.imei}`
-    : `${model} / IMEI 354 882 11 23456 7`
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -188,7 +186,7 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
           <h1 className="text-[24px] font-semibold text-foreground leading-tight">
             {editingDevice ? <>Edit &quot;{editingDevice.name}&quot; Details</> : 'Register New Device'}
           </h1>
-          <p className="text-[14px] text-muted-foreground mt-1">Add a Terminal to your organisation and assing it to a fleet.</p>
+          <p className="text-[14px] text-muted-foreground mt-1">Add a Terminal to your organisation and assign it to a fleet.</p>
         </div>
         <Stepper current={step} onStepClick={setStep} />
       </div>
@@ -196,75 +194,39 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
       {/* ── Step 1 ── */}
       {step === 1 && (
         <div className="flex-1 overflow-y-auto">
-          <div className="px-6 pt-2 pb-4">
 
-            {/* Upload — fixed height, fixed 664px wide */}
-            <p className="text-[14px] font-medium text-foreground mb-3">Upload File</p>
-            <div
-              onClick={() => fileRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={(e) => { e.preventDefault(); setDragging(false) }}
-              className={cn(
-                'flex flex-col items-center justify-center h-[280px] w-[664px] rounded-xl border border-dashed cursor-pointer transition-colors',
-                dragging ? 'border-foreground bg-muted/40' : 'border-border bg-background hover:bg-muted/30'
-              )}
-            >
-              <input ref={fileRef} type="file" className="hidden" />
-              <Upload className="w-6 h-6 text-muted-foreground mb-2" />
-              <span className="text-[14px] text-muted-foreground">Drag and drop files here, or click to select files</span>
-            </div>
-          </div>
+          {/* Two-column: search panel + added panel */}
+          <div className="px-6 py-6 flex gap-6 items-start">
 
-          {/* "or enter manually" — 664px wide */}
-          <div className="px-6 pb-4">
-            <div className="flex items-center gap-4 w-[664px]">
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-[13px] text-muted-foreground shrink-0">or enter manually</span>
-              <div className="flex-1 h-px bg-border" />
-            </div>
-          </div>
-
-          {/* Form — left-aligned, natural width */}
-          <div className="px-6 pb-6">
-            {/* Serial + Model row */}
-            <div className="flex items-end gap-6 mb-4">
-              <div className="flex flex-col gap-3 w-[320px]">
-                <label className="text-[14px] font-medium text-foreground">Serial Number</label>
-                <Input
-                  placeholder="e.g SN-2094-XXXX"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="h-9 text-[14px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]"
-                />
-              </div>
-              <div className="flex flex-col gap-3 w-[320px]">
-                <label className="text-[14px] font-medium text-foreground">Model</label>
-                <div className="relative">
-                  <select
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    className="w-full h-9 pl-3 pr-8 rounded-md border border-input bg-background text-[14px] text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]"
-                  >
-                    {MODELS.map(m => <option key={m}>{m}</option>)}
-                  </select>
-                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
+            {/* Left: bordered search panel */}
+            <div className="border border-border rounded-[10px] pl-6 pr-2 py-6 flex flex-col gap-6 shrink-0 w-[664px]">
+              {/* Header: label+count (flex-1) | filter input (flex-1) */}
+              <div className="flex items-center gap-4 pr-2">
+                <div className="flex flex-1 items-center gap-3">
+                  <span className="text-[14px] font-medium text-foreground whitespace-nowrap">Matching devices</span>
+                  <span className="inline-flex items-center justify-center h-[22px] px-1.5 rounded-md border border-border bg-background text-[12px] font-medium text-muted-foreground">
+                    {results.length}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <Input
+                    placeholder="Filter by name, Serial number"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="w-full h-9 text-[14px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]"
+                  />
                 </div>
               </div>
-            </div>
 
-            {/* Search results */}
-            {results.length > 0 && (
-              <div className="flex gap-2 w-[664px] mb-4 border border-border rounded-[10px] pl-6 pr-2 py-6">
+              {/* Cards + scrollbar */}
+              <div className="flex gap-2">
                 <div
                   ref={resultsRef}
                   onScroll={handleResultsScroll}
                   className="flex-1 flex flex-col gap-2 overflow-y-auto [&::-webkit-scrollbar]:hidden"
                   style={{ maxHeight: '240px' }}
                 >
-                  {results.map(device => (
+                  {results.length > 0 ? results.map(device => (
                     <DeviceCard
                       key={device.id}
                       device={device}
@@ -272,206 +234,261 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
                       onAdd={handleAdd}
                       added={false}
                     />
+                  )) : (
+                    <p className="text-[14px] text-muted-foreground text-center py-6">
+                      {query ? 'No matching devices' : 'Search by name or serial number'}
+                    </p>
+                  )}
+                </div>
+                {results.length > 0 && (
+                  <div className="w-2 shrink-0 relative self-stretch">
+                    <div
+                      className="absolute w-full bg-[#e5e5e5] rounded-[6px] transition-all duration-75"
+                      style={{
+                        height: `${Math.min(100, Math.max(14, (4 / results.length) * 100))}%`,
+                        top: `${scrollPercent * Math.max(0, 100 - Math.min(100, Math.max(14, (4 / results.length) * 100)))}%`,
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right: added devices panel */}
+            <div className="flex-1 min-w-0 bg-background border border-border rounded-xl overflow-hidden self-stretch">
+              <div className="bg-[#fafafa] px-4 py-4 flex items-center justify-between border-b border-border">
+                <span className="text-[14px] font-semibold text-foreground">
+                  {addedDevices.length === 0 ? 'No device added' : `${addedDevices.length} Added`}
+                </span>
+                <button
+                  onClick={() => setAddedDevices([])}
+                  disabled={addedDevices.length === 0}
+                  className="text-[14px] text-foreground underline underline-offset-2 disabled:opacity-40 disabled:cursor-default"
+                >
+                  Clear all
+                </button>
+              </div>
+              {addedDevices.length > 0 && (
+                <div className="p-4 flex flex-col gap-2">
+                  {addedDevices.map(device => (
+                    <DeviceCard
+                      key={device.id}
+                      device={device}
+                      model={model}
+                      onRemove={handleRemove}
+                      added={true}
+                    />
                   ))}
                 </div>
-                <div className="w-2 shrink-0 relative self-stretch">
-                  <div
-                    className="absolute w-full bg-[#e5e5e5] rounded-[6px] transition-all duration-75"
-                    style={{
-                      height: `${Math.max(14, (4 / results.length) * 100)}%`,
-                      top: `${scrollPercent * (100 - Math.max(14, (4 / results.length) * 100))}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Added section */}
-            {addedDevices.length > 0 && (
-              <div className="flex flex-col gap-2 w-[664px]">
-                <p className="text-[14px] font-medium text-foreground">{addedDevices.length} Added</p>
-                {addedDevices.map(device => (
-                  <DeviceCard
-                    key={device.id}
-                    device={device}
-                    model={model}
-                    onRemove={handleRemove}
-                    added={true}
-                  />
-                ))}
-              </div>
-            )}
+              )}
+            </div>
           </div>
+
+          {/* or bulk upload — centered short lines */}
+          <div className="px-6 py-6 flex items-center gap-6 w-[664px]">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[14px] text-muted-foreground shrink-0">or upload file</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          {/* Upload File */}
+          <div className="px-6 pb-8 flex flex-col gap-3">
+            <p className="text-[14px] font-medium text-foreground">Upload File</p>
+            <div
+              onClick={() => fileRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => { e.preventDefault(); setDragging(false) }}
+              className={cn(
+                'flex flex-col items-center justify-center h-[163px] w-[664px] rounded-md border border-dashed cursor-pointer transition-colors shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]',
+                dragging ? 'border-foreground bg-muted/40' : 'border-border bg-background hover:bg-muted/30'
+              )}
+            >
+              <input ref={fileRef} type="file" className="hidden" />
+              <Upload className="w-6 h-6 text-muted-foreground mb-2.5" />
+              <span className="text-[14px] font-medium text-muted-foreground">Drag and drop files here, or click to select files</span>
+            </div>
+          </div>
+
         </div>
       )}
 
       {/* ── Steps 2 & 3 — scrollable */}
       {(step === 2 || step === 3) && (
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-6">
 
           {/* ── Step 2 ── */}
           {step === 2 && (
-            <div className="max-w-[644px]">
-              <div className="flex flex-col gap-2 mb-6">
-                {addedDevices.length > 0 ? addedDevices.map(device => (
-                  <div key={device.id} className="flex items-center px-4 h-11 rounded-lg border border-border bg-muted/30">
-                    <span className="text-[14px] font-medium text-foreground">{device.name}</span>
-                    <span className="text-[14px] text-muted-foreground ml-1.5">/ {model} / IMEI {device.imei}</span>
+            <div className="flex gap-6 items-start">
+
+              {/* Left: fleet selection panel */}
+              <div className="border border-border rounded-[10px] pl-6 pr-2 py-6 flex flex-col gap-6 shrink-0 w-[664px]">
+                <div className="flex flex-col gap-2 pr-2">
+                  <p className="text-[14px] font-medium text-foreground">Assign to fleet</p>
+                  <p className="text-[14px] text-muted-foreground">Select a fleet - the device will inherit its active configuration.</p>
+                </div>
+
+                {/* Fleet rows + scrollbar */}
+                <div className="flex gap-2">
+                  <div className="flex-1 flex flex-col gap-2 overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ maxHeight: '320px' }}>
+                    {FLEETS.map((fleet) => {
+                      const isSelected = selectedFleet === fleet.id
+                      return (
+                        <button
+                          key={fleet.id}
+                          onClick={() => setSelectedFleet(fleet.id)}
+                          className={cn(
+                            'relative flex flex-col gap-[2px] px-4 py-3 rounded-[10px] border text-left w-full transition-colors',
+                            isSelected ? 'border-[#898887]' : 'border-border hover:bg-muted/20'
+                          )}
+                        >
+                          {/* Row 1: checkbox + name */}
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              'w-4 h-4 rounded-sm flex items-center justify-center shrink-0 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]',
+                              isSelected ? 'bg-foreground' : 'bg-background border border-border'
+                            )}>
+                              {isSelected && (
+                                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M2 6l3 3 5-5"/>
+                                </svg>
+                              )}
+                            </div>
+                            <span className="text-[14px] font-medium text-foreground">{fleet.name}</span>
+                          </div>
+                          {/* Row 2: spacer + description */}
+                          <div className="flex items-center gap-3">
+                            <div className="w-4 h-4 shrink-0" />
+                            <span className="text-[14px] font-light text-foreground">
+                              {fleet.devices} devices
+                              {fleet.config
+                                ? <> <span className="font-bold"> • </span> Config v3.1.0 <span className="font-bold"> • </span> {fleet.status}</>
+                                : <> <span className="font-bold"> • </span> No config assigned</>
+                              }
+                            </span>
+                          </div>
+                          {/* Badge */}
+                          {isSelected && (
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center h-[22px] px-[10px] rounded-[10px] bg-secondary text-[12px] font-medium text-secondary-foreground">
+                              Selected
+                            </span>
+                          )}
+                          {!isSelected && !fleet.config && (
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center h-[22px] px-[10px] rounded-[10px] bg-secondary text-[12px] font-medium text-secondary-foreground">
+                              No config
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
-                )) : (
-                  <div className="flex items-center px-4 h-11 rounded-lg border border-border bg-muted/30">
-                    <span className="text-[14px] text-foreground">{deviceId}</span>
+                  <div className="w-2 shrink-0 relative self-stretch">
+                    <div className="absolute w-full bg-[#e5e5e5] rounded-[6px]" style={{ height: `${Math.min(100, (5 / FLEETS.length) * 100)}%`, top: 0 }} />
                   </div>
-                )}
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <p className="text-[14px] font-medium text-foreground">Assing to fleet</p>
-                <p className="text-[13px] text-muted-foreground mb-2">Select a fleet - the device will inherit its active configuration.</p>
-                {FLEETS.map((fleet) => {
-                  const isSelected = selectedFleet === fleet.id
-                  return (
-                    <button
-                      key={fleet.id}
-                      onClick={() => setSelectedFleet(fleet.id)}
-                      className={cn(
-                        'flex items-center gap-3 px-4 py-3 rounded-xl border text-left w-full transition-colors',
-                        isSelected ? 'border-foreground bg-background' : 'border-border bg-background hover:bg-muted/30'
-                      )}
-                    >
-                      <div className={cn(
-                        'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
-                        isSelected ? 'border-foreground' : 'border-muted-foreground'
-                      )}>
-                        {isSelected && <div className="w-2 h-2 rounded-full bg-foreground" />}
-                      </div>
-                      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                        <span className="text-[14px] font-medium text-foreground">{fleet.name}</span>
-                        <span className="text-[13px] text-muted-foreground">
-                          {fleet.devices} devices
-                          {fleet.config ? ` • ${fleet.config} • ${fleet.status}` : ' • No config assigned'}
-                        </span>
-                      </div>
-                      {isSelected && (
-                        <span className="text-[12px] px-2.5 py-1 rounded-md border border-border text-foreground font-medium shrink-0">
-                          Selected
-                        </span>
-                      )}
-                      {!isSelected && !fleet.config && (
-                        <span className="text-[12px] px-2.5 py-1 rounded-md border border-border text-muted-foreground shrink-0">
-                          No config
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
+              {/* Right: added devices summary */}
+              <div className="flex-1 min-w-0 bg-background border border-border rounded-xl overflow-hidden">
+                <div className="bg-[#fafafa] px-4 py-4 flex items-center justify-between border-b border-border">
+                  <span className="text-[14px] font-semibold text-foreground">{addedDevices.length} device{addedDevices.length !== 1 ? 's' : ''} added</span>
+                  <button onClick={() => setStep(1)} className="text-[14px] text-foreground underline underline-offset-2">Edit</button>
+                </div>
+                <div className="p-4 flex flex-col gap-2">
+                  {addedDevices.map(device => (
+                    <div key={device.id} className="flex items-center gap-4 px-3 py-2 bg-[#fafafa] border border-dashed border-border rounded-md shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]">
+                      <p className="text-[14px] truncate">
+                        <span className="font-semibold text-foreground">{device.name} /</span>
+                        <span className="font-normal text-muted-foreground"> IMEI {device.imei}</span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
           {/* ── Step 3 ── */}
-          {step === 3 && (
-            <div className="max-w-[644px]">
-              <p className="text-[14px] font-medium text-foreground mb-3">Select Configuration</p>
-
-              <div className="flex items-center gap-3 mb-6">
-                <div ref={configRef} className="relative w-[370px]">
-                  <button
-                    onClick={() => setConfigOpen(o => !o)}
-                    className="flex items-center justify-between w-full h-10 px-3 rounded-md border border-input bg-background text-[14px] text-foreground hover:bg-muted/30 transition-colors"
-                  >
-                    <span>{selectedConfig}</span>
-                    <ChevronDown className={cn('w-4 h-4 text-muted-foreground transition-transform', configOpen && 'rotate-180')} />
-                  </button>
-                  {configOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-full rounded-lg border border-border bg-background shadow-md z-10 overflow-hidden">
-                      <div className="px-3 py-2 text-[12px] font-medium text-muted-foreground border-b border-border">
-                        Configurations
-                      </div>
-                      {CONFIGS.map(cfg => (
-                        <button
-                          key={cfg.id}
-                          onClick={() => { setSelectedConfig(cfg.name); setConfigOpen(false) }}
-                          className="flex items-center gap-2 w-full px-3 py-2.5 text-[14px] text-foreground hover:bg-muted/40 transition-colors text-left"
-                        >
-                          <span className={cn('w-2 h-2 rounded-full shrink-0', cfg.active ? 'bg-foreground' : 'invisible')} />
-                          {cfg.name}
-                        </button>
-                      ))}
-                      <button className="w-full px-3 py-2.5 text-[14px] text-muted-foreground text-center border-t border-border hover:bg-muted/40 transition-colors">
-                        See all
-                      </button>
-                    </div>
-                  )}
+          {step === 3 && (() => {
+            const filtered = CONFIGS.filter(c =>
+              !configSearch || c.name.toLowerCase().includes(configSearch.toLowerCase())
+            )
+            const categories = [...new Set(filtered.map(c => c.category))]
+            return (
+              <div className="bg-background border border-border rounded-xl overflow-hidden w-[562px]">
+                {/* Panel header */}
+                <div className="bg-[#fafafa] px-4 py-4 border-b border-border">
+                  <span className="text-[14px] font-semibold text-foreground">Select Configuration</span>
                 </div>
-                <span className="text-[13px] text-muted-foreground shrink-0">or</span>
-                <Button variant="outline" className="h-10 px-4 text-[14px] rounded-md gap-1.5 shrink-0" onClick={onNewConfig}>
-                  <Plus className="w-4 h-4" />
-                  Create New Configuration
-                </Button>
+                <div className="p-4 flex flex-col gap-6">
+                  {/* Search input */}
+                  <div className="relative w-[320px]">
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <Input
+                      placeholder="Search by name.."
+                      value={configSearch}
+                      onChange={e => setConfigSearch(e.target.value)}
+                      className="h-9 pl-9 text-[14px] font-light shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]"
+                    />
+                  </div>
+
+                  {/* Grouped config list + scrollbar */}
+                  <div className="flex gap-2">
+                    <div className="flex-1 flex flex-col gap-6 overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ maxHeight: '320px' }}>
+                      {categories.map(cat => (
+                        <div key={cat} className="flex flex-col gap-3">
+                          <p className="text-[14px] text-muted-foreground">{cat}</p>
+                          <div className="flex flex-col gap-2">
+                            {filtered.filter(c => c.category === cat).map(cfg => (
+                              <button
+                                key={cfg.id}
+                                onClick={() => setSelectedConfig(cfg.name)}
+                                className={cn(
+                                  'flex items-center gap-[10px] h-[53px] px-2 rounded-[8px] text-left transition-colors',
+                                  selectedConfig === cfg.name ? 'bg-foreground' : 'bg-secondary hover:bg-secondary/70'
+                                )}
+                              >
+                                <span className={cn(
+                                  'text-[14px] font-medium flex-1 truncate',
+                                  selectedConfig === cfg.name ? 'text-background' : 'text-foreground'
+                                )}>
+                                  {cfg.name}
+                                </span>
+                                {cfg.badge && (
+                                  <span className={cn(
+                                    'inline-flex items-center justify-center h-[22px] px-[10px] rounded-[10px] text-[12px] font-medium shrink-0',
+                                    selectedConfig === cfg.name
+                                      ? 'bg-background text-foreground'
+                                      : 'bg-foreground text-background'
+                                  )}>
+                                    {cfg.badge}
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="w-2 shrink-0 relative self-stretch">
+                      <div className="absolute w-full bg-[#e5e5e5] rounded-[6px]" style={{ height: `${Math.min(100, (4 / CONFIGS.length) * 100)}%`, top: 0 }} />
+                    </div>
+                  </div>
+
+                  {/* Create new config button */}
+                  <Button
+                    variant="outline"
+                    className="w-full h-9 text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)]"
+                    onClick={onNewConfig}
+                  >
+                    Create new Configuration
+                  </Button>
+                </div>
               </div>
-
-              {selectedConfig !== 'Retail Basic Config' && (
-                <>
-                  <div className="grid grid-cols-2 gap-4 mb-5">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[14px] font-medium text-foreground">Configuration name</label>
-                      <Input value={selectedConfig} readOnly className="h-10 text-[14px] bg-muted/30" />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[14px] font-medium text-foreground">Target Fleet</label>
-                      <Input value="Retail - Sofia" readOnly className="h-10 text-[14px] bg-muted/30" />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1.5 mb-6">
-                    <label className="text-[14px] font-medium text-foreground">OS version</label>
-                    <Input defaultValue="INGCO 9.1.2 - Current" className="h-10 text-[14px] max-w-[370px]" />
-                    <p className="text-[13px] text-muted-foreground">Current fleet is on 9.1.2. Selecting newer version triggers staged rollout</p>
-                  </div>
-
-                  <div className="mb-6">
-                    <p className="text-[14px] font-medium text-foreground mb-3">System packages</p>
-                    <div className="rounded-xl border border-border overflow-hidden">
-                      {[
-                        { name: 'payment-kernel', version: '4.1.0', type: 'Required' },
-                        { name: 'security-agent',  version: '3.3.4', type: 'Required' },
-                        { name: 'receipt-driver',  version: '1.2.4', type: 'Optional' },
-                        { name: 'nfc-stack',       version: '3.0.2', type: 'Optional' },
-                      ].map((pkg, i, arr) => (
-                        <div key={pkg.name} className={cn('flex items-center gap-3 px-4 py-3', i < arr.length - 1 && 'border-b border-border')}>
-                          <input type="checkbox" className="w-4 h-4 rounded shrink-0 accent-foreground" />
-                          <span className="text-[14px] text-foreground flex-1">{pkg.name}</span>
-                          <span className="text-[14px] text-muted-foreground w-16">{pkg.version}</span>
-                          <span className={cn(
-                            'text-[12px] px-3 py-1 rounded-full font-medium',
-                            pkg.type === 'Required' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground border border-border'
-                          )}>{pkg.type}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-[14px] font-medium text-foreground mb-3">Application</p>
-                    <div className="rounded-xl border border-border overflow-hidden">
-                      {[
-                        { name: 'PayPoint POS',   desc: 'v6.2.1 Main payment app', type: 'Included' },
-                        { name: 'Retail Manager', desc: 'v2.3.2 Inventory',        type: 'Included' },
-                      ].map((app, i, arr) => (
-                        <div key={app.name} className={cn('flex items-center gap-3 px-4 py-3', i < arr.length - 1 && 'border-b border-border')}>
-                          <input type="checkbox" className="w-4 h-4 rounded shrink-0 accent-foreground" />
-                          <span className="text-[14px] text-foreground flex-1">{app.name}</span>
-                          <span className="text-[14px] text-muted-foreground flex-1">{app.desc}</span>
-                          <span className="text-[12px] px-3 py-1 rounded-full font-medium bg-foreground text-background">{app.type}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+            )
+          })()}
         </div>
       )}
 
@@ -494,7 +511,8 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
           </Button>
           <Button
             onClick={() => step < 3 ? setStep(s => s + 1) : setReviewOpen(true)}
-            className="h-9 px-5 text-[14px] rounded-lg bg-foreground text-background hover:bg-foreground/90"
+            disabled={step === 1 && addedDevices.length === 0}
+            className="h-9 px-5 text-[14px] rounded-lg bg-foreground text-background hover:bg-foreground/90 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {editingDevice ? 'Save Device' : step === 3 ? 'Review & Register' : 'Continue'}
           </Button>
