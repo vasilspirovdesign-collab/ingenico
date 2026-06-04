@@ -104,18 +104,20 @@ function StateAvailable({ onDownload, onBack }) {
         {/* Data table */}
         <div className="w-full border border-border rounded-md overflow-hidden">
           {[
-            { label: 'Current version', value: 'Sofia-Retail-v3.1.0', bold: false, badge: 'Required' },
-            { label: 'New version',     value: 'Sofia-Retail-v3.2.0', bold: true,  badge: 'Required' },
-            { label: 'Size',            value: '24.8 MB',              bold: false, badge: 'Optional' },
+            { label: 'Current version', value: 'Sofia-Retail-v3.1.0', bold: false, badge: null },
+            { label: 'New version',     value: 'Sofia-Retail-v3.2.0', bold: true,  badge: null },
+            { label: 'Size',            value: '24.8 MB',              bold: false, badge: null },
           ].map((row, i, arr) => (
             <div key={row.label} className={`flex items-center h-[49px] px-2 ${i < arr.length - 1 ? 'border-b border-border' : ''}`}>
               <span className="text-[14px] text-foreground w-[120px] shrink-0">{row.label}</span>
               <span className={`text-[14px] text-foreground flex-1 ${row.bold ? 'font-bold' : ''}`}>{row.value}</span>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium shrink-0 ${
-                row.badge === 'Required' ? 'bg-foreground text-background' : 'bg-secondary text-secondary-foreground'
-              }`}>
-                {row.badge}
-              </span>
+              {row.badge && (
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium shrink-0 ${
+                  row.badge === 'Required' ? 'bg-foreground text-background' : 'bg-secondary text-secondary-foreground'
+                }`}>
+                  {row.badge}
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -371,7 +373,7 @@ export default function DeviceMockupsPage() {
     <div className="flex flex-col h-screen overflow-hidden bg-muted/30">
       <TopBar />
 
-      <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start py-10 gap-6">
+      <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start py-10 gap-12">
         {/* Step indicator */}
         <div className="flex items-center gap-6">
           {STATES.map((s, i) => (
