@@ -70,20 +70,29 @@ function Stepper({ current, onStepClick }) {
 
 function DeviceCard({ device, model, onAdd, onRemove, added }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3 rounded-[10px] border border-border bg-background w-full">
-      <div className="flex items-center gap-3 min-w-0">
-        <svg className="w-4 h-4 text-muted-foreground shrink-0" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.2" />
-          <path d="M5 8.5l2 2 4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <div className="flex flex-col gap-0.5 min-w-0">
+    <div className="flex items-center gap-2 px-4 py-3 rounded-[10px] border border-border bg-background w-full">
+      {/* Left: two-row info */}
+      <div className="flex-1 flex flex-col gap-[2px] min-w-0">
+        {/* Row 1: icon + name */}
+        <div className="flex items-center gap-3">
+          <svg className="w-4 h-4 text-foreground shrink-0" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M5 8.5l2 2 4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
           <span className="text-[14px] font-medium text-foreground">{device.name}</span>
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] text-muted-foreground">{model} / IMEI {device.imei}</span>
-            <span className="text-[12px] font-medium px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground">Not registered</span>
+        </div>
+        {/* Row 2: spacer + IMEI + badge */}
+        <div className="flex items-center gap-3">
+          <div className="w-4 h-4 shrink-0" />
+          <div className="flex items-center gap-[10px]">
+            <span className="text-[14px] font-light text-foreground whitespace-nowrap">{model} / IMEI {device.imei}</span>
+            <span className="inline-flex items-center justify-center h-[22px] px-[10px] rounded-[10px] bg-secondary text-[12px] font-medium text-secondary-foreground whitespace-nowrap">
+              Not registered
+            </span>
           </div>
         </div>
       </div>
+      {/* Right: action button */}
       {added ? (
         <Button
           variant="outline"
@@ -96,7 +105,7 @@ function DeviceCard({ device, model, onAdd, onRemove, added }) {
       ) : (
         <Button
           variant="outline"
-          className="h-9 gap-1.5 px-3 text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)] shrink-0"
+          className="h-9 gap-1.5 px-[10px] text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)] shrink-0"
           onClick={() => onAdd(device)}
         >
           <Plus className="w-4 h-4" />
@@ -246,14 +255,14 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
               </div>
             </div>
 
-            {/* Search results — 664px container, custom scrollbar alongside cards */}
+            {/* Search results */}
             {results.length > 0 && (
-              <div className="flex gap-2 w-[664px] mb-4">
+              <div className="flex gap-2 w-[664px] mb-4 border border-border rounded-[10px] pl-6 pr-2 py-6">
                 <div
                   ref={resultsRef}
                   onScroll={handleResultsScroll}
-                  className="w-[648px] shrink-0 flex flex-col gap-2 overflow-y-auto [&::-webkit-scrollbar]:hidden"
-                  style={{ maxHeight: '288px' }}
+                  className="flex-1 flex flex-col gap-2 overflow-y-auto [&::-webkit-scrollbar]:hidden"
+                  style={{ maxHeight: '240px' }}
                 >
                   {results.map(device => (
                     <DeviceCard
@@ -265,24 +274,22 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
                     />
                   ))}
                 </div>
-                {results.length > 4 && (
-                  <div className="w-2 shrink-0 rounded-md bg-muted relative" style={{ height: '288px' }}>
-                    <div
-                      className="absolute w-full bg-neutral-300 rounded-md transition-all duration-75"
-                      style={{
-                        height: `${Math.max(32, (4 / results.length) * 288)}px`,
-                        top: `${scrollPercent * (288 - Math.max(32, (4 / results.length) * 288))}px`,
-                      }}
-                    />
-                  </div>
-                )}
+                <div className="w-2 shrink-0 relative self-stretch">
+                  <div
+                    className="absolute w-full bg-[#e5e5e5] rounded-[6px] transition-all duration-75"
+                    style={{
+                      height: `${Math.max(14, (4 / results.length) * 100)}%`,
+                      top: `${scrollPercent * (100 - Math.max(14, (4 / results.length) * 100))}%`,
+                    }}
+                  />
+                </div>
               </div>
             )}
 
             {/* Added section */}
             {addedDevices.length > 0 && (
               <div className="flex flex-col gap-2 w-[664px]">
-                <p className="text-[14px] font-medium text-foreground">Added</p>
+                <p className="text-[14px] font-medium text-foreground">{addedDevices.length} Added</p>
                 {addedDevices.map(device => (
                   <DeviceCard
                     key={device.id}
