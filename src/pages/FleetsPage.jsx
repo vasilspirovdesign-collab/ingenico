@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown, MoreVertical } from 'lucide-react'
 import TopBar from '../components/TopBar'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
@@ -81,51 +81,52 @@ export default function FleetsPage() {
         {/* Fleet cards grid */}
         <div className="grid grid-cols-3 gap-6">
           {filtered.map((fleet) => (
-            <div key={fleet.id} className="bg-background border border-border rounded-xl overflow-hidden shadow-[0px_1px_1.5px_rgba(0,0,0,0.05)]">
-              {/* Card header */}
-              <div className="bg-muted/60 px-4 py-3 border-b border-border">
+            <div key={fleet.id} className="bg-background border border-border rounded-xl overflow-hidden">
+              {/* Card header — muted bg */}
+              <div className="bg-[#fafafa] px-4 py-4">
                 <span className="text-[14px] font-semibold text-foreground">{fleet.name}</span>
               </div>
 
               {/* Card body */}
-              <div className="flex flex-col gap-6 p-4">
+              <div className="flex flex-col gap-3 p-4">
                 {/* Device counts */}
-                <div className="flex flex-col gap-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[14px] text-muted-foreground">Devices</span>
-                    <span className="text-[16px] font-medium text-foreground">{fleet.devices}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[14px] text-muted-foreground">Online</span>
-                    <span className="text-[16px] font-medium text-foreground">{fleet.online}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[14px] text-muted-foreground">Offline</span>
-                    <span className="text-[16px] font-medium text-foreground">{fleet.offline}</span>
-                  </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[14px] text-muted-foreground">Devices</span>
+                  <span className="text-[16px] font-medium text-foreground">{fleet.devices}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[14px] text-muted-foreground">Online</span>
+                  <span className="text-[16px] font-medium text-foreground">{fleet.online}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[14px] text-muted-foreground">Offline</span>
+                  <span className="text-[16px] font-medium text-foreground">{fleet.offline}</span>
                 </div>
 
                 {/* Divider */}
-                <div className="h-px bg-border" />
+                <div className="h-px bg-border my-0" />
 
                 {/* Config + OS */}
-                <div className="flex flex-col gap-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[14px] text-muted-foreground shrink-0">Active config</span>
-                    <span className="text-[16px] font-medium text-foreground text-right truncate">
-                      {fleet.config ?? 'None'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[14px] text-muted-foreground shrink-0">OS</span>
-                    <span className="text-[16px] font-medium text-foreground text-right">{fleet.os}</span>
-                  </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[14px] text-muted-foreground shrink-0">Active config</span>
+                  <span className="text-[14px] font-medium text-foreground text-right truncate">
+                    {fleet.config ?? 'None'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[14px] text-muted-foreground shrink-0">OS</span>
+                  <span className="text-[14px] font-medium text-foreground text-right">{fleet.os}</span>
                 </div>
 
-                {/* Update all button */}
-                <Button variant="outline" className="w-full h-9 text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)]">
-                  Update all
-                </Button>
+                {/* Footer buttons */}
+                <div className="flex items-center gap-3 mt-0">
+                  <Button variant="outline" className="flex-1 h-9 text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)]">
+                    Update all
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0 shadow-[0px_1px_1px_rgba(0,0,0,0.1)]">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}

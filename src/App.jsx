@@ -6,6 +6,7 @@ import ConfigurationsPage from './pages/ConfigurationsPage'
 import NewConfigurationPage from './pages/NewConfigurationPage'
 import FleetsPage from './pages/FleetsPage'
 import DeploymentsPage from './pages/DeploymentsPage'
+import DeviceMockupsPage from './pages/DeviceMockupsPage'
 
 export default function App() {
   const [page, setPage] = useState('devices')
@@ -50,12 +51,13 @@ export default function App() {
         )}
         {page === 'fleets' && <FleetsPage />}
         {page === 'deployments' && <DeploymentsPage />}
+        {page === 'mockups' && <DeviceMockupsPage />}
         {page === 'configurations' && (
           <ConfigurationsPage onNewConfig={() => { setNewConfigSource(null); setPage('new-configuration') }} />
         )}
         {page === 'new-configuration' && (
           <NewConfigurationPage
-            ctaLabel={newConfigSource === 'register' ? 'Review & Apply' : 'Review & Create'}
+            ctaLabel={newConfigSource === 'register' ? 'Apply' : 'Create'}
             onCancel={() => setPage(newConfigSource === 'register' ? 'register' : 'configurations')}
             onSave={(configName) => {
               if (newConfigSource === 'register') {

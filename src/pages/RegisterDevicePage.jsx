@@ -35,30 +35,32 @@ const FLEETS = [
 
 function Stepper({ current, onStepClick }) {
   return (
-    <div className="flex items-center mb-8">
+    <div className="flex items-center gap-6 mb-8">
       {STEPS.map((step, i) => {
         const num = i + 1
         const active = num === current
         return (
-          <div key={step} className="flex items-center">
+          <div key={step} className="flex items-center gap-6">
             <button
               onClick={() => onStepClick?.(num)}
-              className="flex items-center gap-2 cursor-pointer group"
+              className="flex items-center gap-2"
             >
               <div className={cn(
-                'w-7 h-7 rounded-md flex items-center justify-center text-[13px] font-semibold shrink-0 transition-colors',
-                active ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground group-hover:bg-foreground/10'
+                'w-8 h-8 rounded-md flex items-center justify-center text-[14px] shrink-0',
+                active ? 'bg-foreground text-background' : 'bg-[#f5f5f5] text-foreground'
               )}>
                 {num}
               </div>
               <span className={cn(
-                'text-[14px] whitespace-nowrap transition-colors',
-                active ? 'font-medium text-foreground' : 'text-muted-foreground group-hover:text-foreground'
+                'text-[14px] font-medium whitespace-nowrap',
+                active ? 'text-foreground' : 'text-muted-foreground'
               )}>
                 {step}
               </span>
             </button>
-            {i < STEPS.length - 1 && <div className="w-14 h-px bg-border mx-4" />}
+            {i < STEPS.length - 1 && (
+              <div className="w-14 h-px bg-border" />
+            )}
           </div>
         )
       })}
@@ -68,7 +70,7 @@ function Stepper({ current, onStepClick }) {
 
 function DeviceCard({ device, model, onAdd, onRemove, added }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3 rounded-[10px] border border-border bg-background w-[664px]">
+    <div className="flex items-center justify-between px-4 py-3 rounded-[10px] border border-border bg-background w-full">
       <div className="flex items-center gap-3 min-w-0">
         <svg className="w-4 h-4 text-muted-foreground shrink-0" viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.2" />
@@ -120,8 +122,17 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
   const [selectedConfig, setSelectedConfig] = useState(() => editingDevice?.config ?? 'Retail Basic Config')
   const [configOpen, setConfigOpen] = useState(false)
   const [reviewOpen, setReviewOpen] = useState(false)
+  const [scrollPercent, setScrollPercent] = useState(0)
   const fileRef = useRef()
   const configRef = useRef()
+  const resultsRef = useRef()
+
+  const handleResultsScroll = () => {
+    const el = resultsRef.current
+    if (!el) return
+    const max = el.scrollHeight - el.clientHeight
+    setScrollPercent(max > 0 ? el.scrollTop / max : 0)
+  }
 
   useEffect(() => {
     const handler = (e) => {
@@ -196,11 +207,13 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
             </div>
           </div>
 
-          {/* "or enter manually" — centered, short lines */}
-          <div className="flex items-center justify-center gap-6 px-6 pb-4">
-            <div className="w-14 h-px bg-border" />
-            <span className="text-[13px] text-muted-foreground shrink-0">or enter manually</span>
-            <div className="w-14 h-px bg-border" />
+          {/* "or enter manually" — 664px wide */}
+          <div className="px-6 pb-4">
+            <div className="flex items-center gap-4 w-[664px]">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-[13px] text-muted-foreground shrink-0">or enter manually</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
           </div>
 
           {/* Form — left-aligned, natural width */}
@@ -233,24 +246,42 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
               </div>
             </div>
 
-            {/* Search results */}
+            {/* Search results — 664px container, custom scrollbar alongside cards */}
             {results.length > 0 && (
-              <div className="flex flex-col gap-2 mb-4">
-                {results.map(device => (
-                  <DeviceCard
-                    key={device.id}
-                    device={device}
-                    model={model}
-                    onAdd={handleAdd}
-                    added={false}
-                  />
-                ))}
+              <div className="flex gap-2 w-[664px] mb-4">
+                <div
+                  ref={resultsRef}
+                  onScroll={handleResultsScroll}
+                  className="w-[648px] shrink-0 flex flex-col gap-2 overflow-y-auto [&::-webkit-scrollbar]:hidden"
+                  style={{ maxHeight: '288px' }}
+                >
+                  {results.map(device => (
+                    <DeviceCard
+                      key={device.id}
+                      device={device}
+                      model={model}
+                      onAdd={handleAdd}
+                      added={false}
+                    />
+                  ))}
+                </div>
+                {results.length > 4 && (
+                  <div className="w-2 shrink-0 rounded-md bg-muted relative" style={{ height: '288px' }}>
+                    <div
+                      className="absolute w-full bg-neutral-300 rounded-md transition-all duration-75"
+                      style={{
+                        height: `${Math.max(32, (4 / results.length) * 288)}px`,
+                        top: `${scrollPercent * (288 - Math.max(32, (4 / results.length) * 288))}px`,
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
             {/* Added section */}
             {addedDevices.length > 0 && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 w-[664px]">
                 <p className="text-[14px] font-medium text-foreground">Added</p>
                 {addedDevices.map(device => (
                   <DeviceCard
