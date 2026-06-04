@@ -3,7 +3,51 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import TopBar from '../components/TopBar'
 import logo from '../assets/logo.svg'
 
-const STATES = ['Update Available', 'Downloading', 'Review Update', 'Complete']
+const STATES = ['Payment Screen', 'Update Available', 'Downloading', 'Review Update', 'Complete']
+
+function StatePayment() {
+  return (
+    <div className="flex flex-col h-full">
+      {/* Alert banner */}
+      <div className="mx-[21px] mt-[28px] bg-background border border-border rounded-[10px] px-4 py-3">
+        <div className="flex items-center gap-3 mb-1.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-foreground shrink-0">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 7v5"/>
+            <path d="M12 16v.5"/>
+          </svg>
+          <span className="text-[14px] font-medium text-foreground">Update available</span>
+        </div>
+        <div className="flex items-start gap-3">
+          <div className="w-4 h-4 shrink-0" />
+          <span className="text-[14px] font-light text-foreground leading-5">Downloading in background won't interrupt payments</span>
+        </div>
+      </div>
+
+      {/* Center: icon + amount */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-0">
+        <div className="w-[104px] h-[104px] rounded-full bg-[#f0f0f0] flex items-center justify-center mb-6">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="text-foreground">
+            <rect x="5" y="10" width="30" height="20" rx="3" stroke="currentColor" strokeWidth="1.75"/>
+            <path d="M5 16h30" stroke="currentColor" strokeWidth="1.75"/>
+            <rect x="9" y="21" width="8" height="3" rx="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <p className="text-[48px] font-semibold text-foreground leading-none">$49.39</p>
+      </div>
+
+      {/* Buttons */}
+      <div className="shrink-0 px-[27px] pb-[121px] flex flex-col gap-2">
+        <button className="w-full h-12 bg-foreground text-background text-[14px] font-medium rounded-md shadow-[0px_1px_1px_rgba(0,0,0,0.1)]">
+          Tap to pay
+        </button>
+        <button className="w-full h-12 bg-background text-foreground text-[14px] font-medium rounded-md border border-border">
+          Insert card
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function StateAvailable({ onDownload }) {
   return (
@@ -235,7 +279,7 @@ export default function DeviceMockupsPage() {
   const rafRef = useRef(null)
 
   useEffect(() => {
-    if (stateIndex !== 1) return
+    if (stateIndex !== 2) return
     setProgress(0)
     const start = Date.now()
     const duration = 4000
@@ -249,7 +293,7 @@ export default function DeviceMockupsPage() {
       if (t < 1) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
-        setTimeout(() => setStateIndex(2), 600)
+        setTimeout(() => setStateIndex(3), 600)
       }
     }
     rafRef.current = requestAnimationFrame(tick)
@@ -277,10 +321,11 @@ export default function DeviceMockupsPage() {
 
           {/* Screen content */}
           <div style={{ height: 868 }}>
-            {stateIndex === 0 && <StateAvailable onDownload={() => setStateIndex(1)} />}
-            {stateIndex === 1 && <StateDownloading progress={progress} />}
-            {stateIndex === 2 && <StateReview onInstall={() => setStateIndex(3)} />}
-            {stateIndex === 3 && <StateComplete />}
+            {stateIndex === 0 && <StatePayment />}
+            {stateIndex === 1 && <StateAvailable onDownload={() => setStateIndex(2)} />}
+            {stateIndex === 2 && <StateDownloading progress={progress} />}
+            {stateIndex === 3 && <StateReview onInstall={() => setStateIndex(4)} />}
+            {stateIndex === 4 && <StateComplete />}
           </div>
         </div>
 
