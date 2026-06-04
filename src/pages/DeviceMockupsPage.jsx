@@ -370,10 +370,11 @@ export default function DeviceMockupsPage() {
   }, [downloading])
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-muted/30">
+    <div className="flex flex-col h-screen bg-muted/30">
       <TopBar />
 
-      <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start py-10 gap-12">
+      <div className="flex-1 overflow-y-auto">
+      <div className="flex flex-col items-center py-10 gap-12">
         {/* Step indicator */}
         <div className="flex items-center gap-6">
           {STATES.map((s, i) => (
@@ -422,6 +423,7 @@ export default function DeviceMockupsPage() {
           </div>
         </div>
 
+      </div>
       </div>
     </div>
   )
