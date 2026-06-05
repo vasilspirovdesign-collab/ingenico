@@ -11,12 +11,13 @@ const STEPS = ['Identify device', 'Assign to fleet', 'Apply configuration']
 const MODELS = ['Lane 3000', 'Lane 5000', 'Lane 7000', 'Move 5000']
 
 const CONFIGS = [
-  { id: 1, name: 'Sofia-Retail-v3.2.0',      active: true  },
-  { id: 2, name: 'Plovdiv-Retail-v3.2.0',    active: false },
-  { id: 3, name: 'Varna-Hospitality-v2.9.4', active: false },
-  { id: 4, name: 'PCI-Compliant-v4.1.0',     active: false },
-  { id: 5, name: 'Bulgaria-Base-v1.0.0',     active: false },
-  { id: 6, name: 'NFC-Enabled-v2.0.0',       active: false },
+  { id: 1, name: 'Sofia-Retail-v3.2.0',      category: 'RETAIL',      badge: 'Active'  },
+  { id: 2, name: 'Sofia-Retail-v3.1.0',      category: 'RETAIL',      badge: null      },
+  { id: 3, name: 'Plovdiv-Retail-v3.2.0',    category: 'RETAIL',      badge: null      },
+  { id: 4, name: 'Trakia-Fuel-v1.3.0',       category: 'FUEL',        badge: 'Latest'  },
+  { id: 5, name: 'Trakia-Fuel-v1.2.2',       category: 'FUEL',        badge: null      },
+  { id: 6, name: 'PCI-Compliant-v4.1.0',     category: 'HOSPITALITY', badge: null      },
+  { id: 7, name: 'Bulgaria-Base-v1.0.0',     category: 'BASE',        badge: null      },
 ]
 
 const FLEETS = [
@@ -117,19 +118,10 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
     const match = FLEETS.find(f => f.name === editingDevice.fleet)
     return match ? match.id : 1
   })
-  const [selectedConfig, setSelectedConfig] = useState(() => editingDevice?.config ?? 'Retail Basic Config')
-  const [configOpen, setConfigOpen] = useState(false)
+  const [selectedConfig, setSelectedConfig] = useState(() => editingDevice?.config ?? null)
+  const [configSearch, setConfigSearch] = useState('')
   const [reviewOpen, setReviewOpen] = useState(false)
   const fileRef = useRef()
-  const configRef = useRef()
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (configRef.current && !configRef.current.contains(e.target)) setConfigOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
 
   useEffect(() => {
     if (initialConfig) {
@@ -332,108 +324,83 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
           )}
 
           {/* ── Step 3 ── */}
-          {step === 3 && (
-            <div className="max-w-[644px]">
-              <p className="text-[14px] font-medium text-foreground mb-3">Select Configuration</p>
-
-              <div className="flex items-center gap-3 mb-6">
-                <div ref={configRef} className="relative w-[370px]">
-                  <button
-                    onClick={() => setConfigOpen(o => !o)}
-                    className="flex items-center justify-between w-full h-10 px-3 rounded-md border border-input bg-background text-[14px] text-foreground hover:bg-muted/30 transition-colors"
-                  >
-                    <span>{selectedConfig}</span>
-                    <ChevronDown className={cn('w-4 h-4 text-muted-foreground transition-transform', configOpen && 'rotate-180')} />
-                  </button>
-                  {configOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-full rounded-lg border border-border bg-background shadow-md z-10 overflow-hidden">
-                      <div className="px-3 py-2 text-[12px] font-medium text-muted-foreground border-b border-border">
-                        Configurations
-                      </div>
-                      {CONFIGS.map(cfg => (
-                        <button
-                          key={cfg.id}
-                          onClick={() => { setSelectedConfig(cfg.name); setConfigOpen(false) }}
-                          className="flex items-center gap-2 w-full px-3 py-2.5 text-[14px] text-foreground hover:bg-muted/40 transition-colors text-left"
-                        >
-                          <span className={cn('w-2 h-2 rounded-full shrink-0', cfg.active ? 'bg-foreground' : 'invisible')} />
-                          {cfg.name}
-                        </button>
-                      ))}
-                      <button className="w-full px-3 py-2.5 text-[14px] text-muted-foreground text-center border-t border-border hover:bg-muted/40 transition-colors">
-                        See all
-                      </button>
-                    </div>
-                  )}
+          {step === 3 && (() => {
+            const filtered = CONFIGS.filter(c =>
+              !configSearch || c.name.toLowerCase().includes(configSearch.toLowerCase())
+            )
+            const categories = [...new Set(filtered.map(c => c.category))]
+            return (
+              <div className="bg-background border border-border rounded-xl overflow-hidden w-[562px]">
+                <div className="bg-[#fafafa] px-4 py-4 border-b border-border">
+                  <span className="text-[14px] font-semibold text-foreground">Select Configuration</span>
                 </div>
-                <span className="text-[13px] text-muted-foreground shrink-0">or</span>
-                <Button variant="outline" className="h-10 px-4 text-[14px] rounded-md gap-1.5 shrink-0" onClick={onNewConfig}>
-                  <Plus className="w-4 h-4" />
-                  Create New Configuration
-                </Button>
+                <div className="p-4 flex flex-col gap-6">
+                  {/* Search */}
+                  <div className="relative w-[320px]">
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <Input
+                      placeholder="Search by name.."
+                      value={configSearch}
+                      onChange={e => setConfigSearch(e.target.value)}
+                      className="h-9 pl-9 text-[14px] font-light shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]"
+                    />
+                  </div>
+
+                  {/* Grouped list + scrollbar */}
+                  <div className="flex gap-2">
+                    <div className="flex-1 flex flex-col gap-6 overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ maxHeight: '320px' }}>
+                      {categories.map(cat => (
+                        <div key={cat} className="flex flex-col gap-3">
+                          <p className="text-[14px] text-muted-foreground">{cat}</p>
+                          <div className="flex flex-col gap-2">
+                            {filtered.filter(c => c.category === cat).map(cfg => (
+                              <button
+                                key={cfg.id}
+                                onClick={() => setSelectedConfig(cfg.name)}
+                                className={cn(
+                                  'flex items-center gap-[10px] h-[53px] px-2 rounded-[8px] text-left transition-colors',
+                                  selectedConfig === cfg.name ? 'bg-foreground' : 'bg-secondary hover:bg-secondary/70'
+                                )}
+                              >
+                                <span className={cn(
+                                  'text-[14px] font-medium flex-1 truncate',
+                                  selectedConfig === cfg.name ? 'text-background' : 'text-foreground'
+                                )}>
+                                  {cfg.name}
+                                </span>
+                                {cfg.badge && (
+                                  <span className={cn(
+                                    'inline-flex items-center justify-center h-[22px] px-[10px] rounded-[10px] text-[12px] font-medium shrink-0',
+                                    selectedConfig === cfg.name ? 'bg-background text-foreground' : 'bg-foreground text-background'
+                                  )}>
+                                    {cfg.badge}
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="w-2 shrink-0 relative self-stretch">
+                      <div className="absolute w-full bg-[#e5e5e5] rounded-[6px]" style={{ height: `${Math.min(100, (4 / CONFIGS.length) * 100)}%`, top: 0 }} />
+                    </div>
+                  </div>
+
+                  {/* Create new */}
+                  <Button
+                    variant="outline"
+                    className="w-full h-9 text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)]"
+                    onClick={onNewConfig}
+                  >
+                    Create new Configuration
+                  </Button>
+                </div>
               </div>
-
-              {selectedConfig !== 'Retail Basic Config' && (
-                <>
-                  <div className="grid grid-cols-2 gap-4 mb-5">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[14px] font-medium text-foreground">Configuration name</label>
-                      <Input value={selectedConfig} readOnly className="h-10 text-[14px] bg-muted/30" />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[14px] font-medium text-foreground">Target Fleet</label>
-                      <Input value="Retail - Sofia" readOnly className="h-10 text-[14px] bg-muted/30" />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1.5 mb-6">
-                    <label className="text-[14px] font-medium text-foreground">OS version</label>
-                    <Input defaultValue="INGCO 9.1.2 - Current" className="h-10 text-[14px] max-w-[370px]" />
-                    <p className="text-[13px] text-muted-foreground">Current fleet is on 9.1.2. Selecting newer version triggers staged rollout</p>
-                  </div>
-
-                  <div className="mb-6">
-                    <p className="text-[14px] font-medium text-foreground mb-3">System packages</p>
-                    <div className="rounded-xl border border-border overflow-hidden">
-                      {[
-                        { name: 'payment-kernel', version: '4.1.0', type: 'Required' },
-                        { name: 'security-agent',  version: '3.3.4', type: 'Required' },
-                        { name: 'receipt-driver',  version: '1.2.4', type: 'Optional' },
-                        { name: 'nfc-stack',       version: '3.0.2', type: 'Optional' },
-                      ].map((pkg, i, arr) => (
-                        <div key={pkg.name} className={cn('flex items-center gap-3 px-4 py-3', i < arr.length - 1 && 'border-b border-border')}>
-                          <input type="checkbox" className="w-4 h-4 rounded shrink-0 accent-foreground" />
-                          <span className="text-[14px] text-foreground flex-1">{pkg.name}</span>
-                          <span className="text-[14px] text-muted-foreground w-16">{pkg.version}</span>
-                          <span className={cn(
-                            'text-[12px] px-3 py-1 rounded-full font-medium',
-                            pkg.type === 'Required' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground border border-border'
-                          )}>{pkg.type}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-[14px] font-medium text-foreground mb-3">Application</p>
-                    <div className="rounded-xl border border-border overflow-hidden">
-                      {[
-                        { name: 'PayPoint POS',   desc: 'v6.2.1 Main payment app', type: 'Included' },
-                        { name: 'Retail Manager', desc: 'v2.3.2 Inventory',        type: 'Included' },
-                      ].map((app, i, arr) => (
-                        <div key={app.name} className={cn('flex items-center gap-3 px-4 py-3', i < arr.length - 1 && 'border-b border-border')}>
-                          <input type="checkbox" className="w-4 h-4 rounded shrink-0 accent-foreground" />
-                          <span className="text-[14px] text-foreground flex-1">{app.name}</span>
-                          <span className="text-[14px] text-muted-foreground flex-1">{app.desc}</span>
-                          <span className="text-[12px] px-3 py-1 rounded-full font-medium bg-foreground text-background">{app.type}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+            )
+          })()}
         </div>
       )}
 
