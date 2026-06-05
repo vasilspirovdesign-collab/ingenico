@@ -80,10 +80,7 @@ function Stepper({ current, onStepClick }) {
 
 function DeviceCard({ device, model, onAdd, onRemove, added }) {
   return (
-    <div className={cn(
-      'flex items-center gap-2 px-4 py-3 rounded-[10px] border bg-background w-full transition-colors',
-      added ? 'border-[#898887]' : 'border-border'
-    )}>
+    <div className="flex items-center gap-2 px-4 py-3 rounded-[10px] border border-border bg-background w-full">
       {/* Info */}
       <div className="flex-1 flex flex-col gap-[2px] min-w-0">
         <span className="text-[14px] font-medium text-foreground">{device.name}</span>
