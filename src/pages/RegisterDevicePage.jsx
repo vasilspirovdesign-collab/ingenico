@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Upload, ChevronDown, Plus, Trash2 } from 'lucide-react'
+import { Upload, ChevronDown, Plus, Trash2, X } from 'lucide-react'
 import TopBar from '../components/TopBar'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -80,48 +80,32 @@ function Stepper({ current, onStepClick }) {
 
 function DeviceCard({ device, model, onAdd, onRemove, added }) {
   return (
-    <div className="flex items-center gap-2 px-4 py-3 rounded-[10px] border border-border bg-background w-full">
-      {/* Left: two-row info */}
+    <div className={cn(
+      'flex items-center gap-2 px-4 py-3 rounded-[10px] border bg-background w-full transition-colors',
+      added ? 'border-[#898887]' : 'border-border'
+    )}>
+      {/* Info */}
       <div className="flex-1 flex flex-col gap-[2px] min-w-0">
-        {/* Row 1: icon + name */}
-        <div className="flex items-center gap-3">
-          <svg className="w-4 h-4 text-foreground shrink-0" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.2" />
-            <path d="M5 8.5l2 2 4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="text-[14px] font-medium text-foreground">{device.name}</span>
-        </div>
-        {/* Row 2: spacer + IMEI + badge */}
-        <div className="flex items-center gap-3">
-          <div className="w-4 h-4 shrink-0" />
-          <div className="flex items-center gap-[10px]">
-            <span className="text-[14px] font-light text-foreground whitespace-nowrap">{model} / IMEI {device.imei}</span>
-            <span className="inline-flex items-center justify-center h-[22px] px-[10px] rounded-[10px] bg-secondary text-[12px] font-medium text-secondary-foreground whitespace-nowrap">
-              Not registered
-            </span>
-          </div>
+        <span className="text-[14px] font-medium text-foreground">{device.name}</span>
+        <div className="flex items-center gap-[10px]">
+          <span className="text-[14px] font-light text-foreground whitespace-nowrap">{model} / IMEI {device.imei}</span>
+          <span className="inline-flex items-center justify-center h-[22px] px-[10px] rounded-[10px] bg-secondary text-[12px] font-medium text-secondary-foreground whitespace-nowrap">
+            Not registered
+          </span>
         </div>
       </div>
-      {/* Right: action button */}
-      {added ? (
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-9 w-9 shrink-0 shadow-[0px_1px_1px_rgba(0,0,0,0.1)]"
-          onClick={() => onRemove(device.id)}
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
-      ) : (
-        <Button
-          variant="outline"
-          className="h-9 gap-1.5 px-[10px] text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)] shrink-0"
-          onClick={() => onAdd(device)}
-        >
-          <Plus className="w-4 h-4" />
-          Add Device
-        </Button>
-      )}
+      {/* Action button */}
+      <button
+        onClick={() => added ? onRemove(device.id) : onAdd(device)}
+        className={cn(
+          'h-9 px-[10px] rounded-md border text-[14px] font-medium shrink-0 shadow-[0px_1px_1px_rgba(0,0,0,0.1)] transition-colors',
+          added
+            ? 'bg-foreground text-background border-foreground hover:bg-foreground/90'
+            : 'bg-background text-foreground border-border hover:bg-muted/50'
+        )}
+      >
+        {added ? 'Added' : 'Add'}
+      </button>
     </div>
   )
 }
@@ -142,8 +126,21 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
   const [configSearch, setConfigSearch] = useState('')
   const [reviewOpen, setReviewOpen] = useState(false)
   const [scrollPercent, setScrollPercent] = useState(0)
+  const [newDeviceOpen, setNewDeviceOpen] = useState(false)
+  const [ndLabel, setNdLabel] = useState('')
+  const [ndModel, setNdModel] = useState('')
+  const [ndSerial, setNdSerial] = useState('')
+  const [ndImei, setNdImei] = useState('')
+  const [addedToast, setAddedToast] = useState(null)
   const fileRef = useRef()
   const resultsRef = useRef()
+
+  useEffect(() => {
+    if (!newDeviceOpen) return
+    const handler = (e) => { if (e.key === 'Escape') setNewDeviceOpen(false) }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [newDeviceOpen])
 
   const handleResultsScroll = () => {
     const el = resultsRef.current
@@ -164,7 +161,7 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
     ? DEVICES.filter(d =>
         d.name.toLowerCase().includes(query.toLowerCase()) ||
         d.imei.includes(query)
-      ).filter(d => !addedDevices.find(a => a.id === d.id))
+      )
     : []
 
   const handleAdd = (device) => {
@@ -199,7 +196,7 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
           <div className="px-6 py-6 flex gap-6 items-start">
 
             {/* Left: bordered search panel */}
-            <div className="border border-border rounded-[10px] pl-6 pr-2 py-6 flex flex-col gap-6 shrink-0 w-[664px]">
+            <div className="border border-border rounded-[10px] pl-6 pr-2 py-6 flex flex-col gap-6 shrink-0 w-[664px] min-h-[404px]">
               {/* Header: label+count (flex-1) | filter input (flex-1) */}
               <div className="flex items-center gap-4 pr-2">
                 <div className="flex flex-1 items-center gap-3">
@@ -232,12 +229,25 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
                       device={device}
                       model={model}
                       onAdd={handleAdd}
-                      added={false}
+                      onRemove={handleRemove}
+                      added={!!addedDevices.find(a => a.id === device.id)}
                     />
                   )) : (
-                    <p className="text-[14px] text-muted-foreground text-center py-6">
-                      {query ? 'No matching devices' : 'Search by name or serial number'}
-                    </p>
+                    <div className="flex flex-col items-center gap-4 py-[67px]">
+                      <p className="text-[14px] font-light text-foreground text-center">
+                        {query ? 'No matching devices' : 'Filter by name, Serial number or add New Device'}
+                      </p>
+                      {!query && (
+                        <Button
+                          variant="outline"
+                          className="h-9 gap-1.5 px-[10px] text-[14px] font-medium shadow-[0px_1px_1px_rgba(0,0,0,0.1)]"
+                          onClick={() => setNewDeviceOpen(true)}
+                        >
+                          <Plus className="w-4 h-4" />
+                          New Device
+                        </Button>
+                      )}
+                    </div>
                   )}
                 </div>
                 {results.length > 0 && (
@@ -258,7 +268,7 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
             <div className="flex-1 min-w-0 bg-background border border-border rounded-xl overflow-hidden self-stretch">
               <div className="bg-[#fafafa] px-4 py-4 flex items-center justify-between border-b border-border">
                 <span className="text-[14px] font-semibold text-foreground">
-                  {addedDevices.length === 0 ? 'No device added' : `${addedDevices.length} Added`}
+                  {addedDevices.length === 0 ? 'No device added' : `${addedDevices.length} device${addedDevices.length !== 1 ? 's' : ''} added`}
                 </span>
                 <button
                   onClick={() => setAddedDevices([])}
@@ -271,24 +281,29 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
               {addedDevices.length > 0 && (
                 <div className="p-4 flex flex-col gap-2">
                   {addedDevices.map(device => (
-                    <DeviceCard
-                      key={device.id}
-                      device={device}
-                      model={model}
-                      onRemove={handleRemove}
-                      added={true}
-                    />
+                    <div key={device.id} className="flex items-center gap-4 px-3 py-2 bg-[#fafafa] border border-dashed border-border rounded-md shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]">
+                      <p className="flex-1 text-[14px] font-semibold text-foreground truncate min-w-0">
+                        {device.name} /
+                        <span className="font-normal text-muted-foreground"> IMEI {device.imei}</span>
+                      </p>
+                      <button
+                        onClick={() => handleRemove(device.id)}
+                        className="w-6 h-6 rounded-full bg-[#f5f5f5] flex items-center justify-center shrink-0 hover:bg-muted transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5 text-foreground" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
             </div>
           </div>
 
-          {/* or bulk upload — centered short lines */}
-          <div className="px-6 py-6 flex items-center gap-6 w-[664px]">
-            <div className="flex-1 h-px bg-border" />
+          {/* or upload file — centered short lines matching Figma px-[216px] */}
+          <div className="px-[216px] py-6 flex items-center gap-6">
+            <div className="w-14 h-px bg-border shrink-0" />
             <span className="text-[14px] text-muted-foreground shrink-0">or upload file</span>
-            <div className="flex-1 h-px bg-border" />
+            <div className="w-14 h-px bg-border shrink-0" />
           </div>
 
           {/* Upload File */}
@@ -414,7 +429,17 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
               !configSearch || c.name.toLowerCase().includes(configSearch.toLowerCase())
             )
             const categories = [...new Set(filtered.map(c => c.category))]
+            const PACKAGES = [
+              { name: 'payment-kernel', version: '4.1.0' },
+              { name: 'security-agent',  version: '3.3.4' },
+              { name: 'receipt-driver',  version: '1.2.4' },
+            ]
+            const APPS = [
+              { name: 'PayPoint POS',   detail: 'v6.2.1 Main payment app' },
+              { name: 'Retail Manager', detail: 'v2.3.2 Inventory'        },
+            ]
             return (
+              <div className="flex gap-6 items-start">
               <div className="bg-background border border-border rounded-xl overflow-hidden w-[562px]">
                 {/* Panel header */}
                 <div className="bg-[#fafafa] px-4 py-4 border-b border-border">
@@ -487,6 +512,53 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
                   </Button>
                 </div>
               </div>
+
+              {/* Configuration Summary panel */}
+              <div className="bg-background border border-border rounded-xl overflow-hidden w-[370px] shrink-0">
+                <div className="bg-[#fafafa] px-4 py-4 border-b border-border">
+                  <span className="text-[14px] font-semibold text-foreground tracking-wide">CONFIGURATION SUMMARY</span>
+                </div>
+                <div className="p-4 flex flex-col gap-6">
+                  {/* Config name */}
+                  <div className="flex flex-col gap-3">
+                    <p className="text-[14px] text-muted-foreground">Config name</p>
+                    <p className="text-[16px] font-medium text-foreground">{selectedConfig || <span className="text-muted-foreground">—</span>}</p>
+                  </div>
+                  {/* OS version */}
+                  <div className="flex flex-col gap-3">
+                    <p className="text-[14px] text-muted-foreground">OS version</p>
+                    <p className="text-[16px] font-medium text-foreground">INGCO 9.1.2 - Current</p>
+                  </div>
+                  <div className="h-px bg-border" />
+                  {/* Estimated push */}
+                  <div className="flex flex-col gap-3">
+                    <p className="text-[14px] text-muted-foreground">Estimated push</p>
+                    <p className="text-[16px] font-medium text-foreground">6min</p>
+                  </div>
+                  <div className="h-px bg-border" />
+                  {/* Packages */}
+                  <div className="flex flex-col gap-3">
+                    <p className="text-[14px] text-muted-foreground">Packages</p>
+                    {PACKAGES.map(p => (
+                      <div key={p.name} className="flex items-center gap-3">
+                        <p className="flex-1 text-[16px] font-medium text-foreground min-w-0 truncate">{p.name}</p>
+                        <p className="text-[14px] text-foreground shrink-0">{p.version}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Applications */}
+                  <div className="flex flex-col gap-3">
+                    <p className="text-[14px] text-muted-foreground">Applications</p>
+                    {APPS.map(a => (
+                      <div key={a.name} className="flex items-center gap-3">
+                        <p className="text-[16px] font-medium text-foreground shrink-0">{a.name}</p>
+                        <p className="flex-1 text-[14px] text-foreground text-right truncate">{a.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              </div>
             )
           })()}
         </div>
@@ -532,6 +604,139 @@ export default function RegisterDevicePage({ onCancel, onConfirm, onNewConfig, i
         fleet={FLEETS.find(f => f.id === selectedFleet)}
         config={{ name: selectedConfig, osVersion: 'INGCO 9.1.2 - Current' }}
       />
+
+      {/* New Device Modal */}
+      {newDeviceOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backdropFilter: 'blur(2px)', background: 'rgba(169,168,168,0.34)' }}
+          onClick={() => setNewDeviceOpen(false)}
+        >
+          <div
+            className="bg-background rounded-xl border border-border shadow-xl w-[1174px] h-[800px] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 py-6 border-b border-border shrink-0">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="text-[24px] font-semibold text-foreground leading-8">New Device</h2>
+                  <p className="text-[16px] text-foreground mt-2">Add a new device to your organisation database</p>
+                </div>
+                <button onClick={() => setNewDeviceOpen(false)} className="text-foreground hover:opacity-60 transition-opacity">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 flex gap-2 px-6 py-6 overflow-hidden">
+              {/* Left: form */}
+              <div className="flex-1 bg-background border border-border rounded-xl overflow-hidden flex flex-col">
+                <div className="bg-[#fafafa] px-4 py-4 border-b border-border shrink-0">
+                  <span className="text-[14px] font-semibold text-foreground tracking-wide">DEVICE DETAILS</span>
+                </div>
+                <div className="flex-1 p-4 flex flex-col gap-6 overflow-y-auto">
+                  {/* Label + Model row */}
+                  <div className="flex items-start gap-6">
+                    <div className="flex flex-col gap-3 w-[320px]">
+                      <label className="text-[14px] font-medium text-foreground">Label</label>
+                      <Input value={ndLabel} onChange={e => setNdLabel(e.target.value)} placeholder="Enter label" className="h-9 text-[16px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                    </div>
+                    <div className="flex flex-col gap-3 w-[320px]">
+                      <label className="text-[14px] font-medium text-foreground">Model</label>
+                      <div className="relative">
+                        <select
+                          value={ndModel}
+                          onChange={e => setNdModel(e.target.value)}
+                          className="w-full h-9 pl-3 pr-8 rounded-md border border-input bg-background text-[16px] text-foreground appearance-none cursor-pointer focus:outline-none shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]"
+                        >
+                          <option value="">Select model</option>
+                          {['Lane 3000', 'Lane 5000', 'Lane 7000', 'Move 5000'].map(m => <option key={m}>{m}</option>)}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Serial number */}
+                  <div className="flex flex-col gap-3 w-[320px]">
+                    <label className="text-[14px] font-medium text-foreground">Serial number</label>
+                    <Input value={ndSerial} onChange={e => setNdSerial(e.target.value)} placeholder="Enter serial number" className="h-9 text-[16px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                  </div>
+                  <div className="h-px bg-border" />
+                  {/* IMEI */}
+                  <div className="flex flex-col gap-3 w-[320px]">
+                    <label className="text-[14px] font-medium text-foreground">IMEI</label>
+                    <Input value={ndImei} onChange={e => setNdImei(e.target.value)} placeholder="Enter IMEI number" className="h-9 text-[16px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: preview */}
+              <div className="w-[370px] shrink-0 bg-background border border-border rounded-xl overflow-hidden flex flex-col">
+                <div className="bg-[#fafafa] px-4 py-4 border-b border-border shrink-0">
+                  <span className="text-[14px] font-semibold text-foreground tracking-wide">DEVICE DETAILS</span>
+                </div>
+                <div className="flex-1 p-4 flex flex-col gap-6">
+                  {[
+                    { label: 'Label',         value: ndLabel  },
+                    { label: 'Model',         value: ndModel  },
+                    { label: 'Serial number', value: ndSerial, divider: true },
+                    { label: 'IMEI',          value: ndImei   },
+                  ].map((row, i) => (
+                    <div key={row.label}>
+                      {row.divider && <div className="h-px bg-border mb-6" />}
+                      <div className="flex flex-col gap-3">
+                        <p className="text-[14px] text-muted-foreground">{row.label}</p>
+                        <p className="text-[16px] font-medium text-foreground">{row.value || <span className="text-muted-foreground">—</span>}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <span className="inline-flex items-center justify-center h-[22px] px-[10px] rounded-[10px] bg-secondary text-[12px] font-medium text-secondary-foreground w-fit">
+                    Not registered
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="shrink-0 px-6 py-6 border-t border-border flex items-center justify-end gap-3">
+              <Button variant="outline" className="h-9 px-4 text-[14px] shadow-[0px_1px_1px_rgba(0,0,0,0.1)]" onClick={() => setNewDeviceOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                className="h-9 px-4 text-[14px] bg-foreground text-background hover:bg-foreground/90 shadow-[0px_1px_1px_rgba(0,0,0,0.1)]"
+                onClick={() => {
+                  const name = ndLabel || ndSerial
+                  if (name) {
+                    handleAdd({ id: Date.now(), name, imei: ndImei || ndSerial })
+                    setAddedToast(name)
+                    setTimeout(() => setAddedToast(null), 4000)
+                  }
+                  setNdLabel(''); setNdModel(''); setNdSerial(''); setNdImei('')
+                  setNewDeviceOpen(false)
+                }}
+              >
+                Add to Database
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Added to Database toast */}
+      {addedToast && (
+        <div className="fixed bottom-5 right-5 z-[60] flex items-start gap-3 bg-foreground text-background rounded-xl px-4 py-3.5 shadow-lg w-[340px] animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+            <circle cx="12" cy="12" r="9"/>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12l3 3 5-5"/>
+          </svg>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[14px] font-semibold">Device added successfully</span>
+            <span className="text-[13px] opacity-70">{addedToast} has been added to the database</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
